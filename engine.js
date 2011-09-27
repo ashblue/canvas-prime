@@ -14,16 +14,11 @@ return  window.requestAnimationFrame       ||
         };
 })();
 
-function getMethods(key,method) {
-        for (var key in method) {
-           if (method.hasOwnProperty(key)) {
-             var obj = method[key];
-             for (var prop in obj) {
-               if (obj.hasOwnProperty(prop)) {
-                 alert(prop + " = " + obj[prop]);
-               }
-             }
-           }
+// Loops through functions
+function storageGet(property) {
+        //storage[0].draw();
+        for (var i in storage) {
+                storage[i].draw();
         }
 }
 
@@ -35,6 +30,8 @@ window.onload = function() { start(); }
 
 var canvas = document.getElementById('canvas');
 var ctx;
+var storage = new Array();
+
 function start() {
         if (canvas.getContext) {
                 ctx = canvas.getContext('2d');
@@ -46,9 +43,9 @@ function init() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
         
-        // get each entity init
-        //background.init();
-        getMethods(Entity,init);
+        for (var i in storage) {
+                storage[i].init();
+        }
         
         animate();
 }
@@ -62,8 +59,14 @@ function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         
         // get each entity update
+        for (var i in storage) {
+                storage[i].update();
+        }
+        
         // get each entity draw
-        background.draw();
+        for (var i in storage) {
+                storage[i].draw();
+        }
 }
 
 
@@ -75,6 +78,9 @@ function Entity() {
         this.y = 0;
         this.width = 0;
         this.height = 0;
+        
+        // Could place an array constructor here
+        storage.push(this); // Will need to manually remove killed entities since they stay in memory due to this method
 }
 Entity.prototype.init = function(x,y,width,height) { // 1 time setup container
         
@@ -85,17 +91,17 @@ Entity.prototype.update = function() { // Controls entity logic
 Entity.prototype.draw = function() { // Output for literally drawing the item on Canvas
         
 }
+Entity.prototype.kill = function() {
+        // Logic should remove "this" from storage array
+}
 
 
 /*------------
  Entity Objects
 ------------*/
 var background = new Entity();
-background.init = function() {
-        this.width = 500;
-        this.height = 500;
-}
+//var background = { width: canvas.width, height: canvas.height };
 background.draw = function() {
         ctx.fillStyle = '#000';
-        ctx.fillRect(0,0,this.width,this.height);
+        ctx.fillRect(this.x,this.y,canvas.width,canvas.height);
 }
