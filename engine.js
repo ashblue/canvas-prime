@@ -1,3 +1,10 @@
+/*
+Name: Canvas Prime
+Version: pre-alpha
+Author: Ashton Blue
+Author URL: http://twitter.com/#!/ashbluewd
+*/
+
 /*----------
  Function library
 ----------*/
@@ -58,13 +65,10 @@ function animate() {
 function draw() {
         ctx.clearRect(0,0,canvas.width,canvas.height);
         
-        // get each entity update
+        // Update then draw each entity
+        // Might need a seperate loop for update, but I don't think so
         for (var i in storage) {
                 storage[i].update();
-        }
-        
-        // get each entity draw
-        for (var i in storage) {
                 storage[i].draw();
         }
 }
