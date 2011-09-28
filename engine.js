@@ -23,7 +23,6 @@ return  window.requestAnimationFrame       ||
 
 // Loops through functions
 function storageGet(property) {
-        //storage[0].draw();
         for (var i in storage) {
                 storage[i].draw();
         }
@@ -33,22 +32,32 @@ function storageGet(property) {
 /*---------
  Core game logic
 ---------*/
-window.onload = function() { start(); }
+//window.onload = function() { start(); }
 
 var canvas = document.getElementById('canvas');
 var ctx;
 var storage = new Array();
 
-function start() {
+function Core(startValues) {
+        this.width = 500;
+        this.height = 500
+        
+        if (!startValues) startValues = {};
+        for (var i in startValues) {
+                this[i] = startValues[i];
+        }
+        
+        this.start();
+}
+Core.prototype.start = function() {
         if (canvas.getContext) {
                 ctx = canvas.getContext('2d');
-                init();
+                this.init();
         }
 }
-
-function init() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+Core.prototype.init = function() {
+        canvas.width = this.width;
+        canvas.height = this.height;
         
         for (var i in storage) {
                 storage[i].init();
@@ -57,7 +66,7 @@ function init() {
         animate();
 }
 
-function animate() {
+function animate(current) {
         requestAnimFrame( animate );
         draw();
 }
@@ -77,35 +86,33 @@ function draw() {
 /*-----------
  Entity Pallete
 -----------*/
-function Entity() {
+function Entity(values) {
         this.x = 0;
         this.y = 0;
         this.width = 0;
         this.height = 0;
         
-        // Could place an array constructor here
-        storage.push(this); // Will need to manually remove killed entities since they stay in memory due to this method
-}
-Entity.prototype.init = function(x,y,width,height) { // 1 time setup container
+        // Use array to construct values
+        if (!values) values = {};
+        for (var i in values) {
+                this[i] = values[i];
+        }
         
+        // Place new element into storage
+        storage.push(this);
 }
+Entity.prototype.init = function() { // 1 time setup container
+
+};
 Entity.prototype.update = function() { // Controls entity logic
         
-}
+};
 Entity.prototype.draw = function() { // Output for literally drawing the item on Canvas
         
-}
-Entity.prototype.kill = function() {
-        // Logic should remove "this" from storage array
-}
-
-
-/*------------
- Entity Objects
-------------*/
-var background = new Entity();
-//var background = { width: canvas.width, height: canvas.height };
-background.draw = function() {
-        ctx.fillStyle = '#000';
-        ctx.fillRect(this.x,this.y,canvas.width,canvas.height);
-}
+};
+Entity.prototype.kill = function() { // Remove "this" from storage array        
+        for (var i in storage) {
+                if(storage[i] == this)
+                        storage.splice(i,1);
+        }
+};
