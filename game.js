@@ -1,9 +1,8 @@
 /*------------
  Running the game 
 ------------*/
-var Game = new Core({width:500, height:500}) // Set game size and height
 // You can overwrite any of the core in start() and init here before firing onload
-window.onload = function() { Game.init(); }
+window.onload = function() { var Game = new Core({ width:300, height:500 }); }
 
 /*------------
  Entity Objects

@@ -32,20 +32,21 @@ function storageGet(property) {
 /*---------
  Core game logic
 ---------*/
-//window.onload = function() { start(); }
-
-var canvas = document.getElementById('canvas');
+var canvas;
 var ctx;
 var storage = new Array();
 
 function Core(startValues) {
         this.width = 500;
-        this.height = 500
+        this.height = 500;
+        this.id = 'canvas';
         
         if (!startValues) startValues = {};
         for (var i in startValues) {
                 this[i] = startValues[i];
         }
+        
+        canvas = document.getElementById(this.id);
         
         this.start();
 }
