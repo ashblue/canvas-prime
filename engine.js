@@ -60,10 +60,6 @@ Core.prototype.init = function() {
         canvas.width = this.width;
         canvas.height = this.height;
         
-        for (var i in storage) {
-                storage[i].init();
-        }
-        
         animate();
 }
 
@@ -109,6 +105,7 @@ Entity.prototype.draw = function() { // Output for literally drawing the item on
         
 };
 Entity.prototype.spawn = function() { // Place new element into storage, must be manually called
+        this.init();
         storage.push(this);
 };
 Entity.prototype.kill = function() { // Remove "this" from storage array        
