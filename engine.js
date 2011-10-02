@@ -1,6 +1,6 @@
 /*
 Name: Canvas Prime
-Version: pre-alpha
+Version: Alpha
 Author: Ashton Blue
 Author URL: http://twitter.com/#!/ashbluewd
 */
@@ -98,9 +98,6 @@ function Entity(values) {
         for (var i in values) {
                 this[i] = values[i];
         }
-        
-        // Place new element into storage
-        storage.push(this);
 }
 Entity.prototype.init = function() { // 1 time setup container
 
@@ -110,6 +107,9 @@ Entity.prototype.update = function() { // Controls entity logic
 };
 Entity.prototype.draw = function() { // Output for literally drawing the item on Canvas
         
+};
+Entity.prototype.spawn = function() { // Place new element into storage, must be manually called
+        storage.push(this);
 };
 Entity.prototype.kill = function() { // Remove "this" from storage array        
         for (var i in storage) {
