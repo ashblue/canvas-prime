@@ -30,20 +30,9 @@ var Background = Entity.extend({
         }
 });
 
-//var Background = new Entity({x:20, y:100});
-//Background.draw = function() {
-//        ctx.fillStyle = '#000';
-//        ctx.fillRect(this.x,this.y,canvas.width,canvas.height);
-//};
-
 
 /*------------
  Entity Spawning
 ------------*/
 spawnEntity(Background, 200, 50);
 spawnEntity(Background, 20, 20);
-
-//var id1 = new Background();
-//var id2 = new Background();
-//id1.spawn();
-//id2.spawn();
