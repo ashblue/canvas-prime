@@ -3,9 +3,27 @@ Name: Canvas Prime
 Version: Alpha 0.2
 Repository: https://github.com/ashblue/canvas-prime
 
+
+--- Credits ---
 Author: Ashton Blue
 URL: http://blueashes.com
 Twitter: http://twitter.com/#!/ashbluewd
+
+
+--- To-Do ---
+- Asset loading screen
+
+- Timer creation / handeling
+
+- Add image handler
+-- Image loader w/ ...
+-- Flip function for object images
+-- Image animation handler
+
+- Controller support
+-- Keyboard keys
+-- Mouse position
+-- Mouse click and move
 */
 
 /*----------
