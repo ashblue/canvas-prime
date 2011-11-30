@@ -29,7 +29,7 @@ Twitter: http://twitter.com/#!/ashbluewd
 
 - Sound support
 
-- Include compiler that compresses the game
+- Include compiler that compresses and consolidates all JavaScript
 */
 
 
