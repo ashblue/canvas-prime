@@ -17,6 +17,8 @@ Twitter: http://twitter.com/#!/ashbluewd
 
 - Timer creation / handeling
 
+- In addition to collisions, checks needs to be integrated
+
 - Add image handler
 -- Image loader w/ imageQ
 -- Flip function for object images
@@ -29,7 +31,13 @@ Twitter: http://twitter.com/#!/ashbluewd
 
 - Sound support
 
+- random doesn't work for some odd reason in entity objects at specific times (such as collisions)
+
 - Include compiler that compresses and consolidates all JavaScript
+
+- Create a debugging mode
+
+- Creation of tower defendse level editor plugin
 */
 
 
@@ -156,14 +164,13 @@ var Engine = Class.extend({
             this.storage[i].update(); // Run update functions before drawing anything to prevent screen pops for recently spawned items
             this.storage[i].draw(); // Keeping this before collision test prevents crash on Game.kill(object)
             
-            // Run tests to see if a collision has occured
             if (this.storage[i].type === 'a') {
                 for (var j in this.typeB) {
-                        if (this.overlap(this.storage[i].x, this.storage[i].y, this.storage[i].width, this.storage[i].height, this.typeB[j].x, this.typeB[j].y, this.typeB[j].width, this.typeB[j].height)) {
-                            this.storage[j].collide(this.typeB[j]);
-                            this.typeB[j].collide(this.storage[j]);
-                        }
+                    if (this.overlap(this.storage[i].x, this.storage[i].y, this.storage[i].width, this.storage[i].height, this.typeB[j].x, this.typeB[j].y, this.typeB[j].width, this.typeB[j].height)) {
+                        this.storage[i].collide(this.typeB[j]);
+                        this.typeB[j].collide(this.storage[i]);
                     }
+                }
             }
             
             console.log(this.storage[i]);
