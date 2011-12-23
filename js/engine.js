@@ -44,6 +44,7 @@ Twitter: http://twitter.com/#!/ashbluewd
 /*---------
  Core game logic
 ---------*/
+var Graveyard = []; // Kept global for easier dumping of dead objects for removal
 var Engine = Class.extend({
     /* ----- Default Values -----*/
     canvas: document.getElementById("canvas"),
@@ -56,6 +57,7 @@ var Engine = Class.extend({
     typeB: new Array(), // Enemy storage
     
     /* ----- Utilities -----*/
+    // Try changing window to eval() to attach a variable to it
     spawnEntity: function(name, x, y) {
         // window[] allows you to process its contents and treat it as a variable
         // eval() will process its contents before the variable can grab it
@@ -90,6 +92,9 @@ var Engine = Class.extend({
     random: function(max, min) {
         if (!min) min = 1;
         return Math.floor(Math.random() * (max - min) + min);
+    },
+    randomPosNeg: function() {
+        return Math.random() < 0.5 ? -1 : 1;
     },
     overlap: function(x1,y1,width1,height1,x2,y2,width2,height2) {
         // Test if they overlap
@@ -172,8 +177,14 @@ var Engine = Class.extend({
                     }
                 }
             }
-            
-            console.log(this.storage[i]);
+        }
+        
+        // Clean out killed items
+        if (Graveyard) {
+            for (var obj in Graveyard) {
+                this.kill(Graveyard[obj]);
+            }
+            Graveyard = [];
         }
     }
 });
@@ -183,33 +194,34 @@ var Engine = Class.extend({
  Entity Pallete
 -----------*/
 var Entity = Class.extend({
-        x: 0,
-        y: 0,
-        width: 0,
-        height: 0,
-        // Collision detection type
-        // friendly = a, enemy = b, passive = 0 (yes, its a zero and not the letter o)
-        type: 0, 
-        
-        init: function() {
-            // place extra setup code initiated before spawning here
-        },
-        update: function() {
-            // place code before each draw sequence here
-        },
-        collide: function(object) {
-            // What happens when elements collide?
-        },
-        draw: function() {
-            // Logic for drawing the object
-        },
-        spawn: function(x,y) {
-                if (x) this.x = x;
-                if (y) this.y = y; 
-                this.init();
-                return this;
-        },
-        kill: function() {
-            // Additional kill logic
-        }
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+    // Collision detection type
+    // friendly = a, enemy = b, passive = 0 (yes, its a zero and not the letter o)
+    type: 0,
+    hp: 1,
+    
+    init: function() {
+        // place extra setup code initiated before spawning here
+    },
+    update: function() {
+        // place code before each draw sequence here
+    },
+    collide: function(object) {
+        // What happens when elements collide?
+    },
+    draw: function() {
+        // Logic for drawing the object
+    },
+    spawn: function(x,y) {
+        if (x) this.x = x;
+        if (y) this.y = y; 
+        this.init();
+        return this;
+    },
+    kill: function() {
+        Graveyard.push(this);
+    }
 });
