@@ -56,7 +56,23 @@ var Engine = Class.extend({
     typeA: new Array(), // Friendly storage
     typeB: new Array(), // Enemy storage
     
+    fpsTimeLast: new Date(),
+    
     /* ----- Utilities -----*/
+    // Frome http://glacialflame.com/2010/07/measuring-fps-with-canvas/
+    fpsStart: function() {
+        this.fpsTime = new Date();
+        this.fpsDif = Math.ceil((this.fpsTime.getTime() - this.fpsTimeLast.getTime()));
+        
+        if (this.fpsDif >= 1000) {
+            this.fps = this.fpsCount;
+            this.fpsCount = 0.0;
+            this.fpsTimeLast = this.fpsTime;
+        }
+    },
+    fpsEnd: function() {
+        this.fpsCount++;
+    },
     // Try changing window to eval() to attach a variable to it
     spawnEntity: function(name, x, y) {
         // window[] allows you to process its contents and treat it as a variable
@@ -161,6 +177,8 @@ var Engine = Class.extend({
     
     /* ----- Animation control -----*/
     draw: function() {
+        this.fpsStart();
+        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // Loop through every object in storage
@@ -186,6 +204,8 @@ var Engine = Class.extend({
             }
             Graveyard = [];
         }
+        
+        this.fpsEnd();
     }
 });
 
