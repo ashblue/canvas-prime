@@ -19,32 +19,34 @@ Twitter: http://twitter.com/#!/ashbluewd
 
 - In addition to collisions, checks needs to be integrated
 
-- Add image handler
+- Image handler
 -- Image loader w/ imageQ
 -- Flip function for object images
 -- Image animation handler
 
+- Sound support
+
 - Controller support
--- Keyboard keys
 -- Mouse position
 -- Mouse click and move
 
-- Sound support
 
-- random doesn't work for some odd reason in entity objects at specific times (such as collisions)
 
-- Include compiler that compresses and consolidates all JavaScript
+- Production
+-- PHP development environment that simply outputs JS files
+-- Create a debugging mode
+-- Include compiler script that compresses and consolidates all JavaScript
 
-- Create a debugging mode
-
-- Creation of tower defendse level editor plugin
+- Misc.
+-- Creation of tower defendse level editor plugin
 */
 
 
 /*---------
  Core game logic
 ---------*/
-var Graveyard = []; // Kept global for easier dumping of dead objects for removal
+var Key = new Keyboard(); // Actives keyboard object usage
+var Graveyard = []; // Kept global for easier dumping of dead objects for removal. Needs to be part of the engine at some point.
 var Engine = Class.extend({
     /* ----- Default Values -----*/
     canvas: document.getElementById("canvas"),
@@ -105,6 +107,7 @@ var Engine = Class.extend({
         //    storage[i].draw();
         //}
     },
+    // Random should only be run in the init for best practice
     random: function(max, min) {
         if (!min) min = 1;
         return Math.floor(Math.random() * (max - min) + min);
@@ -156,6 +159,7 @@ var Engine = Class.extend({
         if (this.canvas.getContext) {
             this.ctx = this.canvas.getContext('2d');
             this.screen();
+            Key.setup();
             
             this.init();
         }
@@ -196,6 +200,9 @@ var Engine = Class.extend({
                 }
             }
         }
+        
+        // Clear keyboard input
+        Key.monitor();
         
         // Clean out killed items
         if (Graveyard) {

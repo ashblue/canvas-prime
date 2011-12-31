@@ -58,6 +58,22 @@ window.onload = function() {
             this.color = '#007';
         }
     });
+    
+    // keyboard input testing
+    var KeyTest = Entity.extend({
+        update: function() {
+            //console.log('Key push:' + ' ' + Input.key.push);
+            //if (Input.key.push == Key.input.space) {
+            //    console.log('test');
+            //}
+            //console.log(Input.key.push);
+            if (Key.push('space')) {
+                console.log('did it');
+            }
+            
+            //console.log('Key held:' + ' ' + Input.key.down);
+        }
+    });
         
         
     /*------------
@@ -66,4 +82,5 @@ window.onload = function() {
     Game.spawnEntity(Square, 200, 50);
     Game.spawnEntity(SquareEvil, 100, 100);
     Game.spawnEntity(SquareEvil, 150, 75);
+    Game.spawnEntity(KeyTest, 0, 0);
 }
