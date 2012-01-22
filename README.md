@@ -3,9 +3,6 @@ Setup Guide
 
 While Canvas Prime is ready to be used, it's not ready for production. Be warned that features will be added and removed before the final release.
 
-Steps
------
-
 1. Unpack the files to a directory on a server (required for on-demand JavaScript)
 2. Create entities in 'js/objects' folder
 3. Configure your setup.js
@@ -14,7 +11,7 @@ Steps
 
 'While the below examples will help you with understanding the engine, please see the built in files for the latest documentation.'
 
-### Entities
+# Entities
 
 Each entity should have its own separate file in 'js/objects', these will be loaded by the game's built-in loader
 
@@ -48,7 +45,7 @@ Each entity should have its own separate file in 'js/objects', these will be loa
 
 
 
-### Setup.js
+# Setup.js
 
 The setup file is where you can configure and overwrite your engine. It is ready to be used out of the box, but you may need to figure your object file names here.
 
@@ -78,7 +75,7 @@ The setup file is where you can configure and overwrite your engine. It is ready
     animate();
 
 
-### Run.js
+# Run.js
 
 The run file is the objects that are run once the game has fully loaded. For example after creating and loading the setup objects you might run something like this.
 
