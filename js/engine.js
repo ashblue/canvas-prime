@@ -4,41 +4,10 @@ Name: Canvas Prime
 Version: Alpha 0.21
 Repository: https://github.com/ashblue/canvas-prime
 
-
 --- Credits ---
 Author: Ashton Blue
 URL: http://blueashes.com
 Twitter: http://twitter.com/#!/ashbluewd
-
-
---- To-Do ---
-- Asset loading screen
--- Loads all images, sound files, and other junk with a pretty loading bar
-
-- Timer creation / handeling
-
-- In addition to collisions, checks needs to be integrated
-
-- Image handler
--- Image loader w/ imageQ
--- Flip function for object images
--- Image animation handler
-
-- Sound support
-
-- Controller support
--- Mouse position
--- Mouse click and move
-
-
-
-- Production
--- PHP development environment that simply outputs JS files
--- Create a debugging mode
--- Include compiler script that compresses and consolidates all JavaScript
-
-- Misc.
--- Creation of tower defendse level editor plugin
 */
 
 
@@ -59,6 +28,51 @@ var Engine = Class.extend({
     typeB: new Array(), // Enemy storage
     
     fpsTimeLast: new Date(),
+    
+    /* ----- Loading -----*/
+    load: true,
+    loadCur: 0,
+    loadInit: function() {
+        this.loadCount = this.objects.length;
+    },
+    loadLogic: function() {
+        if (this.loadCur === this.loadCount) this.load = false;
+        console.log(this.loadCur + ' ' + this.loadCount);
+    },
+    loadDraw: function() {
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    },
+    objects: new Array(), // Engine should contain array item file names for loading
+    objectsUrl: 'js/objects/',
+    objectsLoader: function(array) {
+        // For each object it sets the path, then calls the inject
+        for (var key in array) {
+            var url = String(this.objectsUrl + array[key] + '.js');
+            this.objectsInject(url, this.objectsCallback(this.loadCur));
+        }
+    },
+    // http://stackoverflow.com/questions/310583/loading-javascript-dependencies-on-demand
+    // Would be nice if this pumped out a custom error message on fail so users knew how to fix it    
+    objectsInject: function(scriptPath, callback) {
+        var scriptNode = document.createElement('SCRIPT');
+        scriptNode.type = 'text/javascript';
+        scriptNode.src = scriptPath;
+    
+        var headNode = document.getElementsByTagName('HEAD');
+        if (headNode[0] != null)
+            headNode[0].appendChild(scriptNode);
+    
+        if (callback != null)    
+        {
+            scriptNode.onreadystagechange = callback;            
+            scriptNode.onload = callback;
+        }
+        this.loadCur++;
+    },
+    objectsCallback: function(stepUp) {
+
+    },
     
     /* ----- Utilities -----*/
     // Frome http://glacialflame.com/2010/07/measuring-fps-with-canvas/
@@ -97,6 +111,7 @@ var Engine = Class.extend({
         
         this.id += 1; // Increment the id so the next shape is a unique variable
     },
+    // Returns objects from the storage array for manipulation
     storageGet: function(name, array) {
         // Loop through all objects and retrieve them by var:name
         // If array = true
@@ -161,6 +176,10 @@ var Engine = Class.extend({
             this.screen();
             Key.setup();
             
+            // Loading stuff
+            this.loadInit();
+            this.objectsLoader(this.objects);
+            
             this.init();
         }
         else {
@@ -182,36 +201,46 @@ var Engine = Class.extend({
     /* ----- Animation control -----*/
     draw: function() {
         this.fpsStart();
-        
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Loop through every object in storage
-        for (var i in this.storage) {
-            
-            this.storage[i].update(); // Run update functions before drawing anything to prevent screen pops for recently spawned items
-            this.storage[i].draw(); // Keeping this before collision test prevents crash on Game.kill(object)
-            
-            if (this.storage[i].type === 'a') {
-                for (var j in this.typeB) {
-                    if (this.overlap(this.storage[i].x, this.storage[i].y, this.storage[i].width, this.storage[i].height, this.typeB[j].x, this.typeB[j].y, this.typeB[j].width, this.typeB[j].height)) {
-                        this.storage[i].collide(this.typeB[j]);
-                        this.typeB[j].collide(this.storage[i]);
+        // When loading objects run the loading screen, else run the game
+        // WARNING: While the loader is setup correctly for animation, JS is loaded too fast to tell if the loader
+        // screen is actually working. Really not testable until images are also loaded in.
+        // PRODUCTION: Remove load to its own draw in the future for performance increase
+        if (this.load) {
+            this.loadLogic();
+            this.loadDraw();
+        }
+        else {
+            // Loop through every object in storage
+            for (var i in this.storage) {
+                
+                this.storage[i].update(); // Run update functions before drawing anything to prevent screen pops for recently spawned items
+                this.storage[i].draw(); // Keeping this before collision test prevents crash on Game.kill(object)
+                
+                if (this.storage[i].type === 'a') {
+                    for (var j in this.typeB) {
+                        if (this.overlap(this.storage[i].x, this.storage[i].y, this.storage[i].width, this.storage[i].height, this.typeB[j].x, this.typeB[j].y, this.typeB[j].width, this.typeB[j].height)) {
+                            this.storage[i].collide(this.typeB[j]);
+                            this.typeB[j].collide(this.storage[i]);
+                        }
                     }
                 }
             }
-        }
-        
-        // Clear keyboard input
-        Key.monitor();
-        
-        // Clean out killed items
-        if (Graveyard) {
-            for (var obj in Graveyard) {
-                this.kill(Graveyard[obj]);
+            
+            // Clear keyboard input
+            Key.monitor();
+            
+            // Clean out killed items
+            if (Graveyard) {
+                for (var obj in Graveyard) {
+                    this.kill(Graveyard[obj]);
+                }
+                Graveyard = [];
             }
-            Graveyard = [];
+            
+            
         }
-        
         this.fpsEnd();
     }
 });
