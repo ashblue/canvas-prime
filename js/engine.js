@@ -33,7 +33,7 @@ var Engine = Class.extend({
     entityGetName: function(name) {
         // Loop through storage items
             // If storage items name is equal to var name:
-            // Store the object in an array
+            // Store the object in an array by storing its global var name
         // if array is empty return false
     },
     entityGetType: function(type) {
