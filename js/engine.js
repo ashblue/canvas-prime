@@ -29,6 +29,20 @@ var Engine = Class.extend({
     
     fpsTimeLast: new Date(),
     
+    /* ----- Entity -----*/
+    entityGetName: function(name) {
+        // Loop through storage items
+            // If storage items name is equal to var name:
+            // Store the object in an array
+        // if array is empty return false
+    },
+    entityGetType: function(type) {
+        // Loop through storage items
+            // If storage items type is equal to var type:
+            // Store the object in an array
+        // if array is empty return false
+    },
+    
     /* ----- Loading -----*/
     load: true,
     loadCur: 0,
@@ -140,6 +154,12 @@ var Engine = Class.extend({
     kill: function(object) {
         // Run extra kill logic for object
         object.kill();
+        
+        // Remove from main storage
+        for (var i in this.storage) {
+            if (this.storage[i] == object)
+                this.storage.splice(i,1);
+        }
         
         // Remove from type storage
         switch (object.type) {

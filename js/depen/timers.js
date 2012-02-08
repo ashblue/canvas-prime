@@ -1,7 +1,7 @@
 /*
  --- Info ---
 Name: Timers
-Version: .1
+Version: .2
 Desc: Allows users to create a new timer object.
 
 NOTE: Time is based upon computer relayed time. Should be more subjective
@@ -19,11 +19,10 @@ var Timer = Class.extend({
         this.start = new Date();
     },
     expire: function() {
-        // Get time in milliseconds
-        var cur = this.start.getTime();
-        
         // Translate to seconds
-        var cur = convert(cur);
+        var now = new Date();
+        var cur = (now.getTime() - this.start.getTime());
+        var cur = this.convert(cur);
         
         // Return true if expired
         if (cur > this.duration) return true;
@@ -31,7 +30,7 @@ var Timer = Class.extend({
     },
     convert: function(mil) {
         // Milliseconds to seconds with 2 dec. places
-        var secs = (mil / 2).toFixed(2);
+        var secs = (mil / 1000).toFixed(2);
         return secs;
     }
 });
