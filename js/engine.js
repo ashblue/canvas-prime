@@ -30,17 +30,30 @@ var Engine = Class.extend({
     fpsTimeLast: new Date(),
     
     /* ----- Entity -----*/
-    entityGetName: function(name) {
-        // Loop through storage items
-            // If storage items name is equal to var name:
-            // Store the object in an array by storing its global var name
-        // if array is empty return false
-    },
-    entityGetType: function(type) {
-        // Loop through storage items
-            // If storage items type is equal to var type:
-            // Store the object in an array
-        // if array is empty return false
+    // You may get all entities of a type, or filter them by a specific value
+    entityGetVal: function(name,val) {
+        // Setup stack for storage
+        var stack = new Array;
+        
+        // Loop through objects and get matched value
+        if (typeof val != 'undefined') { // Incase no val was passed
+            for (var j in this.storage) {
+                if (this.storage[j][(name)] == val) stack.push(this.storage[j]);
+            }
+        }
+        else {
+            for (var j in this.storage) {
+                if (this.storage[j][(name)]) stack.push(this.storage[j]);
+            }
+        }
+        
+        // Return value or false
+        if (stack.length > 0) {
+            return stack;
+        }
+        else {
+            return false;
+        }
     },
     
     /* ----- Loading -----*/
@@ -51,7 +64,7 @@ var Engine = Class.extend({
     },
     loadLogic: function() {
         if (this.loadCur === this.loadCount) this.load = false;
-        console.log(this.loadCur + ' ' + this.loadCount);
+        //console.log(this.loadCur + ' ' + this.loadCount);
     },
     loadDraw: function() {
         this.ctx.fillStyle = '#000';
@@ -106,8 +119,7 @@ var Engine = Class.extend({
     // Try changing window to eval() to attach a variable to it
     spawnEntity: function(name, x, y) {
         // window[] allows you to process its contents and treat it as a variable
-        // eval() will process its contents before the variable can grab it
-        window['id' + this.id] = eval(new name);
+        window['id' + this.id] = (new name);
         this.storage.push(window['id' + this.id].spawn(x, y)); // Pushes your new variable into an array and runs its spawn function
         window['id' + this.id].id = this.id;
         
@@ -200,7 +212,7 @@ var Engine = Class.extend({
             this.loadInit();
             this.objectsLoader(this.objects);
             
-            this.init();
+            this.extraInit();
         }
         else {
             this.setupFail();
@@ -214,7 +226,7 @@ var Engine = Class.extend({
         this.canvas.width = this.width;
         this.canvas.height = this.height;
     },
-    init: function() {
+    extraInit: function() {
         // Place your additional setup logic here
     },
     
@@ -293,8 +305,8 @@ var Entity = Class.extend({
     },
     spawn: function(x,y) {
         if (x) this.x = x;
-        if (y) this.y = y; 
-        this.init();
+        if (y) this.y = y;
+
         return this;
     },
     kill: function() {

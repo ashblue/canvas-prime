@@ -9,7 +9,8 @@ var MyEngine = Engine.extend({
     objects: [
         'square',
         'square-evil',
-        'key-test'
+        'key-test',
+        'get-test'
     ]
 });
   

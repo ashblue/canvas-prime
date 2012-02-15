@@ -3,4 +3,5 @@ window.onload = function() {
     Game.spawnEntity(SquareEvil, 100, 100);
     Game.spawnEntity(SquareEvil, 150, 75);
     Game.spawnEntity(KeyTest, 0, 0);
+    Game.spawnEntity(GetTest, 0, 0);
 }
