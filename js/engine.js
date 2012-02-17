@@ -59,46 +59,67 @@ var Engine = Class.extend({
     /* ----- Loading -----*/
     load: true,
     loadCur: 0,
-    loadInit: function() {
-        this.loadCount = this.objects.length;
-    },
+    // Logic for drawing and displaying loading screen
     loadLogic: function() {
-        if (this.loadCur === this.loadCount) this.load = false;
+        //if (this.loadCur === this.loadCount) this.load = false;
         //console.log(this.loadCur + ' ' + this.loadCount);
     },
     loadDraw: function() {
         this.ctx.fillStyle = '#000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     },
+    // Setup objects
     objects: new Array(), // Engine should contain array item file names for loading
     objectsUrl: 'js/objects/',
-    objectsLoader: function(array) {
-        // For each object it sets the path, then calls the inject
-        for (var key in array) {
-            var url = String(this.objectsUrl + array[key] + '.js');
-            this.objectsInject(url, this.objectsCallback(this.loadCur));
-        }
-    },
-    // http://stackoverflow.com/questions/310583/loading-javascript-dependencies-on-demand
-    // Would be nice if this pumped out a custom error message on fail so users knew how to fix it    
-    objectsInject: function(scriptPath, callback) {
-        var scriptNode = document.createElement('SCRIPT');
-        scriptNode.type = 'text/javascript';
-        scriptNode.src = scriptPath;
-    
-        var headNode = document.getElementsByTagName('HEAD');
-        if (headNode[0] != null)
-            headNode[0].appendChild(scriptNode);
-    
-        if (callback != null)    
-        {
-            scriptNode.onreadystagechange = callback;            
-            scriptNode.onload = callback;
-        }
-        this.loadCur++;
-    },
-    objectsCallback: function(stepUp) {
+    objectsCount: 0,
+    /*
+     * Loading notes
+     * Create script cration function
+     * Create header creation function
+    */
+    loadAssets: function() {
+        // Setup script
+        var scriptJS = document.createElement('script');
+        scriptJS.type = 'text/javascript';
+        scriptJS.src = this.objectsUrl + this.objects[this.objectsCount] + '.js';
 
+        scriptJS.onload = this.loadAssetsNext;
+
+        // Begin insertion
+        var headerJS = document.getElementsByTagName('HEAD');
+        headerJS[0].appendChild(scriptJS);
+    },
+    loadAssetsNext: function() {
+        // Increment object counter
+        Game.objectsCount++;
+        // Test to see if you should call another item
+        // If else fires all objects have been loaded, therefore create run.js
+        if ((Game.objectsCount) < Game.objects.length) {
+            // Setup script
+            var scriptJS = document.createElement('script');
+            scriptJS.type = 'text/javascript';
+            scriptJS.src = Game.objectsUrl + Game.objects[Game.objectsCount] + '.js';
+            
+            // Declare callback to fire after script has fully loaded
+            scriptJS.onload = Game.loadAssetsNext();
+        
+            // Begin insertion
+            var headerJS = document.getElementsByTagName('HEAD');
+            headerJS[0].appendChild(scriptJS);
+        }
+        else {
+            // Setup script
+            var scriptJSRun = document.createElement('script');
+            scriptJSRun.type = 'text/javascript';
+            scriptJSRun.src = 'js/run.js';
+
+            // Begin insertion
+            var headerJS = document.getElementsByTagName('HEAD');
+            headerJS[0].appendChild(scriptJSRun);
+            
+            // Clear out the loading screen
+            Game.load = false;
+        }
     },
     
     /* ----- Utilities -----*/
@@ -208,10 +229,10 @@ var Engine = Class.extend({
             this.screen();
             Key.setup();
             
-            // Loading stuff
-            this.loadInit();
-            this.objectsLoader(this.objects);
+            // Load everyting necessary
+            this.loadAssets();
             
+            // Run any extra logic added by user
             this.extraInit();
         }
         else {
