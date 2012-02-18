@@ -58,25 +58,52 @@ var Engine = Class.extend({
     
     /* ----- Loading -----*/
     load: true,
-    loadCur: 0,
     // Logic for drawing and displaying loading screen
-    loadLogic: function() {
-        //if (this.loadCur === this.loadCount) this.load = false;
-        //console.log(this.loadCur + ' ' + this.loadCount);
+    loadUpdate: function() {
+        // Create loading numbers string
+        this.loadStatus = this.objectsCount + ' / ' + this.objects.length;
+        this.loadPer = (this.objectsCount / this.objects.length).toFixed(2);
+        
+        // Create loading bar information
+        this.ctx.font = 'italic 400 12px/2 Unknown Font, sans-serif';
     },
     loadDraw: function() {
+        // Background
         this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillRect(0, 0, this.width, this.height);        
+        
+        // Loading text
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '40px arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Loading...', this.width / 2, this.height / 2 - 50);
+        
+        // Asset count text
+        this.ctx.font = '20px arial';
+        this.ctx.fillText(this.loadStatus, this.width / 2, this.height / 2 + 50);
+        
+        // Start loading bar background
+        this.ctx.fillStyle = '#fff';
+        var barOff = 100;
+        var barX = barOff / 2;
+        var barY = this.height / 2 - 20;
+        var barWidth = this.width - barOff;
+        var barHeight = 40;
+        this.ctx.fillRect(barX, barY, barWidth, barHeight);        
+        
+        // Loading bar front
+        this.ctx.fillStyle = '#00aaff';
+        barOff = 5;
+        barX = barX + barOff;
+        barY = barY + barOff;
+        barWidth = (barWidth - (barOff * 2)) * this.loadPer;
+        barHeight = barHeight - (barOff * 2);
+        this.ctx.fillRect(barX, barY, barWidth, barHeight);
     },
     // Setup objects
     objects: new Array(), // Engine should contain array item file names for loading
     objectsUrl: 'js/objects/',
     objectsCount: 0,
-    /*
-     * Loading notes
-     * Create script cration function
-     * Create header creation function
-    */
     loadAssets: function() {
         // Setup script
         var scriptJS = document.createElement('script');
@@ -261,7 +288,7 @@ var Engine = Class.extend({
         // screen is actually working. Really not testable until images are also loaded in.
         // PRODUCTION: Remove load to its own draw in the future for performance increase
         if (this.load) {
-            this.loadLogic();
+            this.loadUpdate();
             this.loadDraw();
         }
         else {
