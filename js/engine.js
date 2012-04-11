@@ -145,8 +145,17 @@ var Engine = Class.extend({
             headerJS[0].appendChild(scriptJSRun);
             
             // Clear out the loading screen
+            //Game.loadImgs();
             Game.load = false;
         }
+    },
+    
+    loadImgs: function() {
+        // Get all image assets
+        
+        console.log('test');
+        // Clear out the loading screen
+        //Game.load = false;
     },
     
     /* ----- Utilities -----*/
@@ -329,6 +338,7 @@ var Engine = Class.extend({
 /*-----------
  Entity Pallete
 -----------*/
+// Note: this can be moved into the class extension script by slightly modifying it
 var Entity = Class.extend({
     x: 0,
     y: 0,
@@ -338,10 +348,7 @@ var Entity = Class.extend({
     // friendly = a, enemy = b, passive = 0 (yes, its a zero and not the letter o)
     type: 0,
     hp: 1,
-    
-    init: function() {
-        // place extra setup code initiated before spawning here
-    },
+
     update: function() {
         // place code before each draw sequence here
     },
