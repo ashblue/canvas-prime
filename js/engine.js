@@ -10,7 +10,6 @@ URL: http://blueashes.com
 Twitter: http://twitter.com/#!/ashbluewd
 */
 
-
 /*---------
  Core game logic
 ---------*/
@@ -58,14 +57,22 @@ var Engine = Class.extend({
     
     /* ----- Loading -----*/
     load: true,
+    loadCount: 0,
+    loadTotal: 0,
     // Logic for drawing and displaying loading screen
     loadUpdate: function() {
         // Create loading numbers string
-        this.loadStatus = this.objectsCount + ' / ' + this.objects.length;
-        this.loadPer = (this.objectsCount / this.objects.length).toFixed(2);
+        this.loadStatus = this.loadCount + ' / ' + this.loadTotal;
+        this.loadPer = (this.loadCount / this.loadTotal).toFixed(2);
         
         // Create loading bar information
         this.ctx.font = 'italic 400 12px/2 Unknown Font, sans-serif';
+        
+        // Count loaded objects
+        if (this.imgResp && // double check images have arrived
+        this.loadCount == this.loadTotal) { 
+            this.load = false;
+        }
     },
     loadDraw: function() {
         // Background
@@ -105,6 +112,12 @@ var Engine = Class.extend({
     objectsUrl: 'js/objects/',
     objectsCount: 0,
     loadAssets: function() {
+        // Load images
+        this.loadImgs();
+        
+        // Set number of images
+        this.loadCount += this.objects.length;
+        
         // Setup script
         var scriptJS = document.createElement('script');
         scriptJS.type = 'text/javascript';
@@ -119,6 +132,7 @@ var Engine = Class.extend({
     loadAssetsNext: function() {
         // Increment object counter
         Game.objectsCount++;
+        Game.loadTotal++;
         // Test to see if you should call another item
         // If else fires all objects have been loaded, therefore create run.js
         if ((Game.objectsCount) < Game.objects.length) {
@@ -146,16 +160,48 @@ var Engine = Class.extend({
             
             // Clear out the loading screen
             //Game.loadImgs();
-            Game.load = false;
+            //Game.load = false;
         }
     },
     
+    loadXmlHttp: new XMLHttpRequest(),
+    pathImg: 'images/',
+    imgResp: false,
     loadImgs: function() {
-        // Get all image assets
+        var self = this;
         
-        console.log('test');
-        // Clear out the loading screen
-        //Game.load = false;
+        // Prep XML HTTP request
+        this.loadXmlHttp.open('GET', 'images.php',true);
+        this.loadXmlHttp.send();
+        
+        // When request is complete
+        this.loadXmlHttp.onreadystatechange = function() {
+            if (self.loadXmlHttp.readyState==4 && self.loadXmlHttp.status==200) {
+                // Prep data
+                var images = JSON.parse(self.loadXmlHttp.responseText);        
+                
+                // Increment number of game items
+                self.loadCount += images.length;
+                
+                // Tell the sytem that images have given a response
+                self.imgResp = true;
+                
+                // Loop through all items
+                // http://www.mennovanslooten.nl/blog/post/62
+                for (var i = 0; i < images.length; i++ ) {
+                    var img = new Image();
+                    var imgName = images[i];
+                    img.src = self.pathImg + images[i];
+                    
+                    img.onload = (function(val) {
+                        // returning a function forces the load into another scope
+                        return function() {
+                            Game.loadTotal++;
+                        }
+                    })(i);
+                }
+            }
+        }
     },
     
     /* ----- Utilities -----*/
