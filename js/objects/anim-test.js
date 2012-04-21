@@ -1,26 +1,30 @@
 var animTest = Entity.extend({
     width: 129,
     height: 68,
+    
+    // Must be a negative 1 to be detected easily, decreases logic
     animCur: {
         id: -1
     },
     animSet: {
         id: -1
     },
+    
     x: -129,
     
     init: function() {
         // Create and set an animation sheet
         var animSheet = new AnimSheet('character.png', 129, 68);
-        var animRun = new Anim(animSheet, 1000, [0, 1, 2], true);
+        var animRun = new Anim(animSheet, 100, [1, 2, 1, 2, 1, 2], {
+            repeat: true
+        });
         this.animSet = animRun;
     },
     
     update: function() {
         this.animNew();
 
-        
-        
+        this.x += 5;
     },
     
     // check if set animation has changed
@@ -41,17 +45,27 @@ var animTest = Entity.extend({
     },
     
     draw: function() {
-        // dump image x and y data
-        var img = this.animSet.get();
-        
-        // Draw the image
-        console.log(img);
-        Game.ctx.drawImage(
-            this.animSet.sheet.img, // img
-            img.x, // crop x location
-            img.y, // crop y location
-             // width of crop window
-             // height of crop window
-        );
+        this.imgCrop();
+    },
+    
+    // Shrinks and fixes up an animation sheet then draws it
+    imgCrop: function() {
+        if (this.animCur.id != -1) {
+            // dump image x and y data fur current frame
+            var img = this.animSet.get();
+            
+            // Draw the image
+            Game.ctx.drawImage(
+                this.animSet.sheet.img, // img
+                img.x, // crop x location
+                img.y, // crop y location
+                this.animSet.sheet.animWidth, // width of crop window
+                this.animSet.sheet.animHeight, // height of crop window
+                this.x, // canvas x location
+                this.y,// canvas y location
+                this.width, // canvas width
+                this.height // canvas height
+            );
+        }
     }
 });

@@ -58,9 +58,9 @@ var Anim = Class.extend({
     flip: false,
     repeat: false,
     
-    // Should take a callback that can tweak settings such as opacity,
-    // flip, ect
-    init: function(sheet, interval, frames, callback) {
+    // Takes information relevant to the particular animation and an object
+    // to quickly set various parameters
+    init: function(sheet, interval, frames, obj) {
         this.id();
         
         // Store information for future usage
@@ -68,7 +68,15 @@ var Anim = Class.extend({
         this.speed = interval,
         this.frames = frames;
         
-        // execute callback
+        this.quickSet(obj);
+        // run callback
+    },
+    
+    // a shortcut for quickly setting params via processing an object
+    quickSet: function(params) {
+        for (var par in params) {
+            this[par] = params[par];
+        }
     },
     
     current: 0,
@@ -94,14 +102,13 @@ var Anim = Class.extend({
     },
     cycle: function() {
         // Verify frames are still running
-        if (this.current < this.frames.length) {
+        if (this.current + 1 < this.frames.length) {
             // Next animation
             this.current++;
         } else if (this.repeat) { // repeat if set
             this.current = 0;
         } else { // kill the entire animation, must be done outside of the cycle
             clearInterval(this.animRun);
-            console.log('i have cleared');
         }
     },
     
@@ -110,7 +117,7 @@ var Anim = Class.extend({
         // get current animation
         var sheetLoc = this.frames[this.current];
         
-        // Return the animations x and y coordinates for drawing
+        // Return the animation x and y coordinates for drawing
         return this.sheet.map[sheetLoc];
     },
     
@@ -121,7 +128,7 @@ var Anim = Class.extend({
     
     // Increments universal IDs placed on all objects, needs to be put into the core of the game engine
     id: function() {
-        // remove this later
+        // remove this later by adding it to the game core
         if (! Game.idAsset)
             Game.idAsset = 0;
         

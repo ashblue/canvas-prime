@@ -7,12 +7,11 @@ var MyEngine = Engine.extend({
     height: 400,
     // Make sure to load objects dependant on another AFTER their parent object has been loaded
     objects: [
-        'anim-test'
-        
-        //'square',
-        //'square-evil',
-        //'key-test',
-        //'get-test'
+        'anim-test',
+        'key-test',
+        'get-test',
+        'square',
+        'square-evil'
     ]
 });
   

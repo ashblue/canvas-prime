@@ -142,7 +142,7 @@ var Engine = Class.extend({
             scriptJS.src = Game.objectsUrl + Game.objects[Game.objectsCount] + '.js';
             
             // Declare callback to fire after script has fully loaded
-            scriptJS.onload = Game.loadAssetsNext();
+            scriptJS.onload = Game.loadAssetsNext;
         
             // Begin insertion
             var headerJS = document.getElementsByTagName('HEAD');
@@ -162,6 +162,8 @@ var Engine = Class.extend({
             //Game.loadImgs();
             //Game.load = false;
         }
+        
+        
     },
     
     loadXmlHttp: new XMLHttpRequest(),
