@@ -7,20 +7,15 @@ var MyEngine = Engine.extend({
     height: 400,
     // Make sure to load objects dependant on another AFTER their parent object has been loaded
     objects: [
-        'square',
-        'square-evil',
-        'key-test',
-        'get-test'
+        'anim-test'
+        
+        //'square',
+        //'square-evil',
+        //'key-test',
+        //'get-test'
     ]
 });
   
 // Create and activate your personal engine
-var Game = new MyEngine();
+var Game = new MyEngine(); // Your variable name must be Game
 Game.setup();
-    
-// Animation must be kept seperate due to a DOM error caused by self-reference in objects
-function animate() {
-    requestAnimFrame( animate );
-    Game.draw();
-}
-animate();

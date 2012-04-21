@@ -311,6 +311,8 @@ var Engine = Class.extend({
             this.screen();
             Key.setup();
             
+            this.animate(this);
+            
             // Load everyting necessary
             this.loadAssets();
             
@@ -331,6 +333,10 @@ var Engine = Class.extend({
     },
     extraInit: function() {
         // Place your additional setup logic here
+    },
+    animate: function() {
+        requestAnimFrame( Game.animate );
+        Game.draw();
     },
     
     /* ----- Animation control -----*/
