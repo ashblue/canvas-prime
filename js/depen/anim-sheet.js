@@ -55,8 +55,19 @@ var AnimSheet = Class.extend({
 
 // Setup an animation that can be cached
 var Anim = Class.extend({
-    flip: false,
+    // Infinitely loop animation
     repeat: false,
+    
+    // Set alpha transparency
+    alpha: 1,
+    
+    // Completely flip the axis
+    flipX: false,
+    flipY: false,
+    
+    // modify the returned image location, will make the image not line up with its container
+    offsetX: 0,
+    offsetY: 0,
     
     // Takes information relevant to the particular animation and an object
     // to quickly set various parameters
@@ -67,9 +78,7 @@ var Anim = Class.extend({
         this.sheet = sheet,
         this.speed = interval,
         this.frames = frames;
-        
         this.quickSet(obj);
-        // run callback
     },
     
     // a shortcut for quickly setting params via processing an object
@@ -100,6 +109,7 @@ var Anim = Class.extend({
         var self = this;
         this.animRun = setInterval(function() {self.cycle();}, self.speed);
     },
+    
     cycle: function() {
         // Verify frames are still running
         if (this.current + 1 < this.frames.length) {
@@ -107,7 +117,7 @@ var Anim = Class.extend({
             this.current++;
         } else if (this.repeat) { // repeat if set
             this.current = 0;
-        } else { // kill the entire animation, must be done outside of the cycle
+        } else { // kill the entire animation
             clearInterval(this.animRun);
         }
     },
@@ -121,9 +131,69 @@ var Anim = Class.extend({
         return this.sheet.map[sheetLoc];
     },
     
-    // Restarts the animation for the first frame
-    reset: function() {
+    // Crops and returns a full image
+    crop: function(x, y, width, height) {
+        // dump image x and y data fur current frame
+        var img = this.get();
         
+        // Set alpha
+        Game.ctx.globalAlpha = this.alpha;
+        
+        // Canvas locations (setup for manipulation by flipping)
+        var canvasX = x + this.offsetX;
+        var canvasY = y + this.offsetY;
+        
+        // Flip image?
+        // Note translate is intense, look for an alternative and prevent this from firing as much as possible
+        if (this.flipX) {
+            var horiz = -1;
+            // X coordinate must be reversed
+            canvasX = canvasX * horiz;
+        } else {
+            var horiz = 1;
+        }
+        
+        if (this.flipY) {
+            var vert = -1;
+            // Reverse y and add difference in height
+            canvasY = canvasY * vert - this.sheet.animHeight;
+        } else {
+            var vert = 1;
+        }
+        
+        // Set scale initally
+        Game.ctx.scale(horiz, vert);
+        
+        // Draw the image
+        Game.ctx.drawImage(
+            this.sheet.img, // img
+            img.x, // crop x location
+            img.y, // crop y location
+            this.sheet.animWidth, // width of crop window
+            this.sheet.animHeight, // height of crop window
+            canvasX, // canvas x location
+            canvasY,// canvas y location
+            width, // canvas width
+            height // canvas height
+        );
+        
+        // Fix Set alpha, probably a better way to do this by including it in the core draw() object
+        Game.ctx.globalAlpha = 1;
+        Game.ctx.scale(horiz, vert);
+    },
+    
+    // Restarts the animation for the first frame manually, plays if active
+    reset: function() {
+        if (this.active == true) {
+            // Clear interval to prevent conflicts
+            clearInterval(this.animRun);
+            
+            // Start new interval
+            this.run();
+        }
+        
+        // Set current frame to 0
+        this.current = 0;
     },
     
     // Increments universal IDs placed on all objects, needs to be put into the core of the game engine
