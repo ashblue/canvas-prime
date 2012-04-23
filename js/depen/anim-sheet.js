@@ -196,7 +196,8 @@ var Anim = Class.extend({
         this.current = 0;
     },
     
-    // Increments universal IDs placed on all objects, needs to be put into the core of the game engine
+    // Increments universal IDs placed on all objects, needs to be put into the core of the game engine.
+    // Currently an ID incrementer already exists, need to be modified to take into account animation sheets too.
     id: function() {
         // remove this later by adding it to the game core
         if (! Game.idAsset)
