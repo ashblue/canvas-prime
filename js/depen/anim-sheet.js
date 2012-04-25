@@ -173,8 +173,8 @@ var Anim = Class.extend({
             this.sheet.animHeight, // height of crop window
             canvasX, // canvas x location
             canvasY,// canvas y location
-            width, // canvas width
-            height // canvas height
+            this.sheet.animWidth, // canvas width
+            this.sheet.animHeight // canvas height
         );
         
         // Fix Set alpha, probably a better way to do this by including it in the core draw() object
