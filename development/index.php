@@ -13,11 +13,15 @@
         </canvas>
     </div>
     
+    <!-- Load dependencies -->
+    <script type="text/javascript" src="js/depen/animation.js"></script>
+    <script type="text/javascript" src="js/depen/class_init.js"></script>
+    
     <!-- Load all files in development -->
     <?php include 'include/files.php'; ?>
     
     <!-- Execute logic from assembled engine -->
-    <!--<script type="text/javascript" src="js/setup.js"></script>-->
+    <script type="text/javascript" src="js/setup.js"></script>
 </body>
 
 </html>

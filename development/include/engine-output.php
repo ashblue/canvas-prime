@@ -21,10 +21,10 @@ foreach ($files as $index=>$file):
     $content = file_get_contents('../js/engine/' . $file, true);
     
     // Strip the object creation declaration
-    $content = str_replace('var vg = vg || {};', '', $content);
+    $content = str_replace('var cp = cp || {};', '', $content);
     
-    // Replace first instance of vg.
-    $content = preg_replace('/vg./', '', $content, 1);
+    // Replace first instance of cp.
+    $content = preg_replace('/cp./', '', $content, 1);
     
     // Indent every freikin line with 4 spaces
     $content_format = '';
@@ -46,10 +46,8 @@ foreach ($files as $index=>$file):
         endif;
     }
     
+    // Append content to body
     $body .= $content_format;
-    
-    // object delcaration
-    // all other instances remove vg
 endforeach;
     
 // Echo the script
@@ -58,7 +56,7 @@ echo 'header info here
 ';
 
 //$body = file_get_contents('../js/engine/test1.js', true);
-echo 'vg = {';
+echo 'cp = {';
     echo $body;
 echo '};';
 ?>
