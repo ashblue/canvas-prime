@@ -6,102 +6,120 @@ Desc: Contains basic information for the engine such as initialization, loops
 
 var cp = cp || {};
 
-var Graveyard = []; // Kept global for easier dumping of dead objects for removal. Needs to be part of the engine at some point.
-var Engine = Class.extend({
-    /* ----- Default Values -----*/
+cp.core = {
+    // Gather the canvas element for future use
     canvas: document.getElementById("canvas"),
+    
+    // Sets the screens width and height, method can be accessed at any time
     width: 500,
     height: 500,
+    screen: function(width, height) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+    },
     
-    id: 0,
+    // Storage arrays for searching and loop optimization
     storage: new Array(),
     typeA: new Array(), // Friendly storage
     typeB: new Array(), // Enemy storage
     
-    overlap: function(x1,y1,width1,height1,x2,y2,width2,height2) {
-        // Test if they overlap
-        if ( x1 < x2 + width2 && x1 + width1 > x2 && y1 < y2 + width2 && y1 + height1 > y2 )
-            return true;
-        else
-            return false;
-    },
-    
-    /* ----- Engine Setup -----*/
-    setup: function() {
+    // Runs a series of methods to get the game up and running
+    init: function() {
         if (this.canvas.getContext) {
+            // Set context as 2D and store drawing tools for easy use
             cp.ctx = this.canvas.getContext('2d');
-            this.screen();
-            Key.setup();
             
-            this.animate(this);
+            // Setup the Canvas viewing space
+            this.screen(this.width, this.height);
+            
+            // Init animation
+            this.animate();
             
             // Load everyting necessary
-            this.loadAssets();
+            cp.load.init();
             
             // Run any extra logic added by user
-            this.extraInit();
+            this.initHook();
         }
         else {
-            this.setupFail();
+            this.fail();
         }
     },
-    setupFail: function() {
-        // Place your response/logic here for users that can't load Canvas
-        alert('Canvas has failed to load in your browser. Please download/run Google Chrome, then re-visit this URL.');
+    // Place your response/logic here for users that can't load Canvas
+    fail: function() {
+        alert('Canvas has failed to load in your browser. Please download/run Google Chrome, then visit this page again using it.');
     },
-    screen: function() {
-        this.canvas.width = this.width;
-        this.canvas.height = this.height;
-    },
-    extraInit: function() {
-        // Place your additional setup logic here
-    },
-    animate: function() {
-        requestAnimFrame( Game.animate );
-        Game.draw();
+    // Place your additional setup logic here us cp.core.iniHook = function() {}; in setup.js
+    initHook: function() {
+        
     },
     
-    /* ----- Animation control -----*/
+    // Must be referenced via global object due to a self reference error
+    animate: function() {
+        requestAnimFrame( cp.core.animate );
+        cp.core.draw();
+    },
+    
+    // Drawing
     draw: function() {
-        this.fpsStart();
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        cp.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // When loading objects run the loading screen, else run the game
-        // Note: Remove load to its own draw in the future for performance increase
-        if (this.load) {
-            this.loadUpdate();
-            this.loadDraw();
-        }
-        else {
-            // Loop through every object in storage
-            for (var i in this.storage) {
+        // Note: Remove load to its own draw if possible and switch it out upon completion
+        if (! cp.load.active) {
+            // Loop through every object in storage via reverse loop for maximum performance.
+            // Drawing in reverse also makes newly drawn items drawn on top instead of underneath everything
+            for (var obj = this.storage.length; obj--;) {
                 
-                this.storage[i].update(); // Run update functions before drawing anything to prevent screen pops for recently spawned items
-                this.storage[i].draw(); // Keeping this before collision test prevents crash on Game.kill(object)
+                // Run update functions before drawing anything to prevent screen pops for recently spawned items
+                this.storage[obj].update();
                 
+                // Keeping this before collision test prevents crash on Game.kill(object)
+                this.storage[obj].draw(); 
+                
+                // Check for a collision on an a type storage item to save loop execution time
                 if (this.storage[i].type === 'a') {
-                    for (var j in this.typeB) {
-                        if (this.overlap(this.storage[i].x, this.storage[i].y, this.storage[i].width, this.storage[i].height, this.typeB[j].x, this.typeB[j].y, this.typeB[j].width, this.typeB[j].height)) {
-                            this.storage[i].collide(this.typeB[j]);
-                            this.typeB[j].collide(this.storage[i]);
+                    // Check all items in the b type array only since its an a type item
+                    for (var en = this.typeB.length; en--;) {
+                        // Test for overlap between the two
+                        if (this.overlap(
+                                this.storage[obj].x,
+                                this.storage[obj].y,
+                                this.storage[obj].width,
+                                this.storage[obj].height,
+                                this.typeB[en].x,
+                                this.typeB[en].y,
+                                this.typeB[en].width,
+                                this.typeB[en].height)
+                            ) {
+                            
+                            // If they have collided, run the collision logic for both entities
+                            this.storage[obj].collide(this.typeB[en]);
+                            this.typeB[en].collide(this.storage[obj]);
                         }
                     }
                 }
             }
             
-            // Clear keyboard input
-            Key.monitor();
-            
             // Clean out killed items
-            if (cp.game.graveyard) {
-                for (var obj in cp.game.graveyard) {
-                    this.kill(cp.game.graveyard[obj]);
-                }
-                cp.game.graveyard = [];
-            }
-            
-            
+            cp.game.graveyardPurge();
+        
+        // Loading logic
+        } else {
+            cp.load.update();
+            cp.load.draw();
         }
-        this.fpsEnd();
+    },
+    
+    // Test if two square objects are overlapping, game's default collision logic
+    overlap: function(x1,y1,width1,height1,x2,y2,width2,height2) {
+        if ( x1 < x2 + width2 &&
+            x1 + width1 > x2 &&
+            y1 < y2 + width2 &&
+            y1 + height1 > y2 ) {
+            return true;
+        } else {
+            return false;
+        }
     }
-});
+};

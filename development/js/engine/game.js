@@ -11,6 +11,9 @@ To-Do: Add logic for objects loading with cp.imgCount and cp.imgLoaded
 var cp = cp || {};
 
 cp.game = {
+    // An incremental id counter added to each newly created asset (gives it a unique id)
+    id: 1,
+    
     // You may get all entities by a contained value name.
     // Second parameters is a filter that will only retrieve the value
     // if it matches.
@@ -60,9 +63,39 @@ cp.game = {
         
         this.id += 1; // Increment the id so the next shape is a unique variable
     },
+    // spawnEntity should look more like this
+    /* var blah = Class.extend({
+        init: function(val) {
+            this.text = val;
+        }
+    });
     
+    var game = {
+        id: 5,
+        storage: [],
+        create: function() {
+            var item = new blah('one');
+            this.storage.push(item);
+            
+            var item = new blah('two');
+            this.storage.push(item);
+            
+            return this.storage;
+        }
+    } */
+    
+    // Used to destroy entities when necessary instead of doing it during the loop and potentially blowing
+    // everything up by accident.
     graveyard: [],
-    
+    // Permanently erases all graveyard items at the end of a loop
+    graveyardPurge: function() {
+        if (this.graveyard) {
+            for (var obj in cp.game.graveyard) {
+                this.kill(cp.game.graveyard[obj]);
+            }
+            this.graveyard = [];
+        }
+    },
     kill: function(object) {
         // Run extra kill logic for object
         object.kill();
@@ -99,5 +132,5 @@ cp.game = {
         
         // Clean out of browser's memory permanently
         delete window['id' + object.id];
-    },
+    }
 };

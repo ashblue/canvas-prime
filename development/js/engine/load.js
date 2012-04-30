@@ -11,9 +11,13 @@ To-Do: Add logic for objects loading with cp.imgCount and cp.imgLoaded
 var cp = cp || {};
 
 cp.load = {
-    load: true,
-    loadCount: 0,
-    loadTotal: 0,
+    active: true,
+    count: 0,
+    total: 0,
+    init: function() {
+        
+    },
+
     // Logic for drawing and displaying loading screen
     loadUpdate: function() {
         // Create loading numbers string

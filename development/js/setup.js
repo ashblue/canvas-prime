@@ -1,9 +1,31 @@
 /*------------
 Running The Game 
 -----------*/
-//console.log(new vg.anim.sheet('character.png', 50, 50));
-//console.log(new vg);
 console.log(cp);
+
+
+
+//spawnEntity: function(name, x, y) {
+//    // window[] allows you to process its contents and treat it as a variable
+//    window['id' + this.id] = (new name);
+//    this.storage.push(window['id' + this.id].spawn(x, y)); // Pushes your new variable into an array and runs its spawn function
+//    window['id' + this.id].id = this.id;
+//    
+//    // Push into type storage for quicker collision detection
+//    switch (window['id' + this.id].type) {
+//        case 'a':
+//            this.typeA.push(window['id' + this.id]);
+//            break;
+//        case 'b':
+//            this.typeB.push(window['id' + this.id]);
+//            break;
+//        default:
+//            break;
+//    }
+//    
+//    this.id += 1; // Increment the id so the next shape is a unique variable
+//}
+
 
 /*------------
 Old Running The Game 
