@@ -1,11 +1,10 @@
 /*
-Name: Animation Sheets and Controls
+Name: Loading Logic
 Version: 1
-Desc: Allows users to create new animation sheets and control them.
+Desc: Controls all file loading mechanisms and draws the loading screen while waiting.
 
-Notes: To pre-load images, the script relies on the init
-
-To-Do: Add logic for objects loading with cp.imgCount and cp.imgLoaded
+Notes:
+- Files are loading in so fast its impossible to tell if loading them in is locking up the entire page or not.
 */
 
 var cp = cp || {};
@@ -15,120 +14,125 @@ cp.load = {
     count: 0,
     total: 0,
     init: function() {
-        
+        // Begin loading files
+        this.getFiles();
+        // Begin loading images (should fire draw when image files are added to total)
     },
 
     // Logic for drawing and displaying loading screen
-    loadUpdate: function() {
+    update: function() {
         // Create loading numbers string
-        this.loadStatus = this.loadCount + ' / ' + this.loadTotal;
-        this.loadPer = (this.loadCount / this.loadTotal).toFixed(2);
+        this.progress = this.count + ' / ' + this.total;
         
         // Create loading bar information
-        this.ctx.font = 'italic 400 12px/2 Unknown Font, sans-serif';
+        this.progressPercent = (this.count / this.total).toFixed(2);
         
         // Count loaded objects
-        if (this.imgResp && // double check images have arrived
-        this.loadCount == this.loadTotal) { 
-            this.load = false;
+        if (this.count == this.total) {
+            // turn off the animation
+            this.active = false;
+            
+            // reset draw properties to prevent any Canvas draw conflicts
+            // this.reset();
+            
+            // run the game
         }
     },
-    loadDraw: function() {
+    
+    // Literally draws all assets for loading, should be replaced if a user wants their own custom
+    // drawing screen via re-writing cp.load.draw = function() { // code here };.
+    draw: function() {
+        // Sent font basics
+        //cp.ctx.font = 'italic 400 12px/2 arial, sans-serif';
+        
         // Background
-        this.ctx.fillStyle = '#000';
-        this.ctx.fillRect(0, 0, this.width, this.height);        
+        cp.ctx.fillStyle = '#000';
+        cp.ctx.fillRect(0, 0, cp.core.width, cp.core.height);        
         
         // Loading text
-        this.ctx.fillStyle = '#fff';
-        this.ctx.font = '40px arial';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('Loading...', this.width / 2, this.height / 2 - 50);
+        cp.ctx.fillStyle = '#fff';
+        cp.ctx.font = '40px arial';
+        cp.ctx.textAlign = 'center';
+        cp.ctx.fillText('Loading...', cp.core.width / 2, cp.core.height / 2 - 50);
         
         // Asset count text
-        this.ctx.font = '20px arial';
-        this.ctx.fillText(this.loadStatus, this.width / 2, this.height / 2 + 50);
+        cp.ctx.font = '20px arial';
+        cp.ctx.fillText(this.progress, cp.width / 2, cp.height / 2 + 50);
         
         // Start loading bar background
-        this.ctx.fillStyle = '#fff';
-        var barOff = 100;
-        var barX = barOff / 2;
-        var barY = this.height / 2 - 20;
-        var barWidth = this.width - barOff;
-        var barHeight = 40;
-        this.ctx.fillRect(barX, barY, barWidth, barHeight);        
+        var offset = 100,
+        barX = offset / 2, // Note: might break due to self reference
+        barY = cp.core.height / 2 - 20,
+        barWidth = cp.core.width - offset,
+        barHeight = 40;
         
-        // Loading bar front
-        this.ctx.fillStyle = '#00aaff';
-        barOff = 5;
-        barX = barX + barOff;
-        barY = barY + barOff;
-        barWidth = (barWidth - (barOff * 2)) * this.loadPer;
-        barHeight = barHeight - (barOff * 2);
-        this.ctx.fillRect(barX, barY, barWidth, barHeight);
+        cp.ctx.fillStyle = '#fff';
+        cp.ctx.fillRect(barX, barY, barWidth, barHeight);        
+        
+        // Loading bar overlay (progress bar)
+        offset = 5;
+        barX = barX + offset;
+        barY = barY + offset;
+        barWidth = (barWidth - (offset * 2)) * this.progressPercent;
+        barHeight = barHeight - (offset * 2);
+        
+        cp.ctx.fillStyle = '#00aaff';
+        cp.ctx.fillRect(barX, barY, barWidth, barHeight);
     },
-    // Setup objects
-    objects: new Array(), // Engine should contain array item file names for loading
-    objectsUrl: 'js/objects/',
-    objectsCount: 0,
-    loadAssets: function() {
-        // Load images
-        this.loadImgs();
+    
+    // Setup and information for loading file assets
+    htmlHead: document.getElementsByTagName('HEAD'),
+    fileUrl: 'js/objects/',
+    fileCount: 0,
+    fileTotal: 0,
+    
+    getFiles: function() {        
+        // Double check var objects is present with an array of file names to
+        // load, or perform an emergency exit.
+        if (typeof this.objects !== 'array') {
+            console.log('Failure to load. No elements have been loaded into the engine. Please include an array of objects in cp.load.objects[\'example1\', \'example2\']');
+            return false;
+        }
         
-        // Set number of images
-        this.loadCount += this.objects.length;
+        // Update total asset count
+        this.total += this.objects.length;
+        
+        // Store the total number of objects to loop through
+        this.fileTotal = this.objects.length;
+        
+        // Create all files
+        this.fileCreate();
+    },
+    
+    fileCreate: function() {
+        var self = this;
         
         // Setup script
-        var scriptJS = document.createElement('script');
-        scriptJS.type = 'text/javascript';
-        scriptJS.src = this.objectsUrl + this.objects[this.objectsCount] + '.js';
-
-        scriptJS.onload = this.loadAssetsNext;
-
-        // Begin insertion
-        var headerJS = document.getElementsByTagName('HEAD');
-        headerJS[0].appendChild(scriptJS);
-    },
-    loadAssetsNext: function() {
-        // Increment object counter
-        Game.objectsCount++;
-        Game.loadTotal++;
-        // Test to see if you should call another item
-        // If else fires all objects have been loaded, therefore create run.js
-        if ((Game.objectsCount) < Game.objects.length) {
-            // Setup script
-            var scriptJS = document.createElement('script');
-            scriptJS.type = 'text/javascript';
-            scriptJS.src = Game.objectsUrl + Game.objects[Game.objectsCount] + '.js';
+        var script = document.createElement('script');
+        script.type = 'text/javascript';
+        script.src = this.fileUrl + this.objects[this.fileCount] + '.js';
+        
+        // Declare onload rules
+        script.onload = function() {
+            // Increment counters here since the previous object is fully loaded
+            self.fileCount++;
+            self.count++;
             
-            // Declare callback to fire after script has fully loaded
-            scriptJS.onload = Game.loadAssetsNext;
-        
-            // Begin insertion
-            var headerJS = document.getElementsByTagName('HEAD');
-            headerJS[0].appendChild(scriptJS);
-        }
-        else {
-            // Setup script
-            var scriptJSRun = document.createElement('script');
-            scriptJSRun.type = 'text/javascript';
-            scriptJSRun.src = 'js/run.js';
-
-            // Begin insertion
-            var headerJS = document.getElementsByTagName('HEAD');
-            headerJS[0].appendChild(scriptJSRun);
+            // Test for completion and exit if so
+            if (self.fileCount < self.fileTotal)
+                return true;
             
-            // Clear out the loading screen
-            //Game.loadImgs();
-            //Game.load = false;
-        }
+            // Refer back to this method upon completion
+            self.fileCreate();
+        };
         
-        
+        // Insert new document
+        this.htmlHead[0].appendChild(script);
     },
     
     loadXmlHttp: new XMLHttpRequest(),
-    pathImg: 'images/',
-    imgResp: false,
-    loadImgs: function() {
+    imgUrl: 'images/',
+    getImgs: function() {
         var self = this;
         
         // Prep XML HTTP request
@@ -142,14 +146,11 @@ cp.load = {
                 var images = JSON.parse(self.loadXmlHttp.responseText);        
                 
                 // Increment number of game items
-                self.loadCount += images.length;
-                
-                // Tell the sytem that images have given a response
-                self.imgResp = true;
+                self.total += images.length;
                 
                 // Loop through all items
                 // http://www.mennovanslooten.nl/blog/post/62
-                for (var i = 0; i < images.length; i++ ) {
+                for ( var i = images.length; i--; ) {
                     var img = new Image();
                     var imgName = images[i];
                     img.src = self.pathImg + images[i];
@@ -157,7 +158,7 @@ cp.load = {
                     img.onload = (function(val) {
                         // returning a function forces the load into another scope
                         return function() {
-                            Game.loadTotal++;
+                            self.total++;
                         }
                     })(i);
                 }

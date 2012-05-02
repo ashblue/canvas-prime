@@ -1,7 +1,7 @@
 /*
-Name: Core functions for the engine
+Name: Core functions
 Version: 1
-Desc: Contains basic information for the engine such as initialization, loops
+Desc: Contains basic information for the engine such as initialization, loops, storage, ect.
 */
 
 var cp = cp || {};
@@ -32,14 +32,14 @@ cp.core = {
             // Setup the Canvas viewing space
             this.screen(this.width, this.height);
             
-            // Init animation
+            // Start animation
             this.animate();
             
             // Load everyting necessary
             cp.load.init();
             
             // Run any extra logic added by user
-            this.initHook();
+            this.hookInit();
         }
         else {
             this.fail();
@@ -50,7 +50,7 @@ cp.core = {
         alert('Canvas has failed to load in your browser. Please download/run Google Chrome, then visit this page again using it.');
     },
     // Place your additional setup logic here us cp.core.iniHook = function() {}; in setup.js
-    initHook: function() {
+    hookInit: function() {
         
     },
     
@@ -82,7 +82,7 @@ cp.core = {
                     // Check all items in the b type array only since its an a type item
                     for (var en = this.typeB.length; en--;) {
                         // Test for overlap between the two
-                        if (this.overlap(
+                        if (cp.game.overlap(
                                 this.storage[obj].x,
                                 this.storage[obj].y,
                                 this.storage[obj].width,
@@ -108,18 +108,6 @@ cp.core = {
         } else {
             cp.load.update();
             cp.load.draw();
-        }
-    },
-    
-    // Test if two square objects are overlapping, game's default collision logic
-    overlap: function(x1,y1,width1,height1,x2,y2,width2,height2) {
-        if ( x1 < x2 + width2 &&
-            x1 + width1 > x2 &&
-            y1 < y2 + width2 &&
-            y1 + height1 > y2 ) {
-            return true;
-        } else {
-            return false;
         }
     }
 };
