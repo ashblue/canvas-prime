@@ -43,95 +43,26 @@ cp.game = {
     },
     
     // Attach object relative to engine, not window
-    spawnEntity: function(name, x, y) {
-        // window[] allows you to process its contents and treat it as a variable
-        window['id' + this.id] = (new name);
-        this.storage.push(window['id' + this.id].spawn(x, y)); // Pushes your new variable into an array and runs its spawn function
-        window['id' + this.id].id = this.id;
+    spawn: function(name, x, y) {        
+        // Create the entity and temporarily store it for reference purposes
+        var entity = new cp.template[name];
+        
+        cp.core.storage.push(entity.spawn(x, y)); // Pushes your new variable into an array and runs its spawn function
+        entity.id = cp.core.id;
         
         // Push into type storage for quicker collision detection
-        switch (window['id' + this.id].type) {
+        switch (entity.type) {
             case 'a':
-                this.typeA.push(window['id' + this.id]);
+                cp.core.typeA.push(entity);
                 break;
             case 'b':
-                this.typeB.push(window['id' + this.id]);
+                cp.core.typeB.push(entity);
                 break;
             default:
                 break;
         }
         
-        this.id += 1; // Increment the id so the next shape is a unique variable
-    },
-    // spawnEntity should look more like this
-    /* var blah = Class.extend({
-        init: function(val) {
-            this.text = val;
-        }
-    });
-    
-    var game = {
-        id: 5,
-        storage: [],
-        create: function() {
-            var item = new blah('one');
-            this.storage.push(item);
-            
-            var item = new blah('two');
-            this.storage.push(item);
-            
-            return this.storage;
-        }
-    } */
-    
-    // Used to destroy entities when necessary instead of doing it during the loop and potentially blowing
-    // everything up by accident.
-    graveyard: [],
-    // Permanently erases all graveyard items at the end of a loop
-    graveyardPurge: function() {
-        if (this.graveyard) {
-            for (var obj in cp.game.graveyard) {
-                this.kill(cp.game.graveyard[obj]);
-            }
-            this.graveyard = [];
-        }
-    },
-    kill: function(object) {
-        // Run extra kill logic for object
-        object.kill();
-        
-        // Remove from main storage
-        for (var i in this.storage) {
-            if (this.storage[i] == object)
-                this.storage.splice(i,1);
-        }
-        
-        // Remove from type storage
-        switch (object.type) {
-            case 'a':
-                for (var i in this.typeA) {
-                    if(this.typeA[i] == object)
-                        this.typeA.splice(i,1);
-                }
-                break;
-            case 'b':
-                for (var i in this.typeB) {
-                    if(this.typeB[i] == object)
-                        this.typeB.splice(i,1);
-                }
-                break;
-            default:
-                break;
-        }
-        
-        // Remove from main storage
-        for (var i in this.storage) {
-            if(this.storage[i] == object)
-                this.storage.splice(i,1);
-        }
-        
-        // Clean out of browser's memory permanently
-        delete window['id' + object.id];
+        cp.core.id += 1; // Increment the id so the next shape is a unique variable
     },
     
     // Test if two square objects are overlapping, game's default collision logic

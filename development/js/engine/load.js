@@ -2,9 +2,6 @@
 Name: Loading Logic
 Version: 1
 Desc: Controls all file loading mechanisms and draws the loading screen while waiting.
-
-Notes:
-- Files are loading in so fast its impossible to tell if loading them in is locking up the entire page or not.
 */
 
 var cp = cp || {};
@@ -13,10 +10,13 @@ cp.load = {
     active: true,
     count: 0,
     total: 0,
+    
     init: function() {
         // Begin loading files
         this.getFiles();
+        
         // Begin loading images (should fire draw when image files are added to total)
+        this.getImgs();
     },
 
     // Logic for drawing and displaying loading screen
@@ -29,55 +29,52 @@ cp.load = {
         
         // Count loaded objects
         if (this.count == this.total) {
-            // turn off the animation
+            // turn off the animation and run the game
             this.active = false;
-            
-            // reset draw properties to prevent any Canvas draw conflicts
-            // this.reset();
-            
-            // run the game
         }
     },
     
     // Literally draws all assets for loading, should be replaced if a user wants their own custom
     // drawing screen via re-writing cp.load.draw = function() { // code here };.
     draw: function() {
-        // Sent font basics
-        //cp.ctx.font = 'italic 400 12px/2 arial, sans-serif';
-        
-        // Background
-        cp.ctx.fillStyle = '#000';
-        cp.ctx.fillRect(0, 0, cp.core.width, cp.core.height);        
-        
-        // Loading text
-        cp.ctx.fillStyle = '#fff';
-        cp.ctx.font = '40px arial';
-        cp.ctx.textAlign = 'center';
-        cp.ctx.fillText('Loading...', cp.core.width / 2, cp.core.height / 2 - 50);
-        
-        // Asset count text
-        cp.ctx.font = '20px arial';
-        cp.ctx.fillText(this.progress, cp.width / 2, cp.height / 2 + 50);
-        
-        // Start loading bar background
-        var offset = 100,
-        barX = offset / 2, // Note: might break due to self reference
-        barY = cp.core.height / 2 - 20,
-        barWidth = cp.core.width - offset,
-        barHeight = 40;
-        
-        cp.ctx.fillStyle = '#fff';
-        cp.ctx.fillRect(barX, barY, barWidth, barHeight);        
-        
-        // Loading bar overlay (progress bar)
-        offset = 5;
-        barX = barX + offset;
-        barY = barY + offset;
-        barWidth = (barWidth - (offset * 2)) * this.progressPercent;
-        barHeight = barHeight - (offset * 2);
-        
-        cp.ctx.fillStyle = '#00aaff';
-        cp.ctx.fillRect(barX, barY, barWidth, barHeight);
+        if (this.loadXmlHttp.readyState==4 && this.loadXmlHttp.status==200) {
+            // Sent font basics
+            //cp.ctx.font = 'italic 400 12px/2 arial, sans-serif';
+            
+            // Background
+            cp.ctx.fillStyle = '#000';
+            cp.ctx.fillRect(0, 0, cp.core.width, cp.core.height);        
+            
+            // Loading text
+            cp.ctx.fillStyle = '#fff';
+            cp.ctx.font = '40px arial';
+            cp.ctx.textAlign = 'center';
+            cp.ctx.fillText('Loading...', cp.core.width / 2, cp.core.height / 2 - 50);
+            
+            // Asset count text
+            cp.ctx.font = '20px arial';
+            cp.ctx.fillText(this.progress, cp.core.width / 2, cp.core.height / 2 + 50);
+            
+            // Start loading bar background
+            var offset = 100,
+            barX = offset / 2, // Note: might break due to self reference
+            barY = cp.core.height / 2 - 20,
+            barWidth = cp.core.width - offset,
+            barHeight = 40;
+            
+            cp.ctx.fillStyle = '#fff';
+            cp.ctx.fillRect(barX, barY, barWidth, barHeight);        
+            
+            // Loading bar overlay (progress bar)
+            offset = 5;
+            barX = barX + offset;
+            barY = barY + offset;
+            barWidth = (barWidth - (offset * 2)) * this.progressPercent;
+            barHeight = barHeight - (offset * 2);
+            
+            cp.ctx.fillStyle = '#00aaff';
+            cp.ctx.fillRect(barX, barY, barWidth, barHeight);
+        }
     },
     
     // Setup and information for loading file assets
@@ -86,11 +83,11 @@ cp.load = {
     fileCount: 0,
     fileTotal: 0,
     
-    getFiles: function() {        
+    getFiles: function() {
         // Double check var objects is present with an array of file names to
         // load, or perform an emergency exit.
-        if (typeof this.objects !== 'array') {
-            console.log('Failure to load. No elements have been loaded into the engine. Please include an array of objects in cp.load.objects[\'example1\', \'example2\']');
+        if (typeof this.objects !== 'object') {
+            console.log('Failure to load. No elements have been loaded into the engine. Please include an array of objects in cp.load.objects([\'example1\', \'example2\']) with corresponding files in js/objects');
             return false;
         }
         
@@ -119,7 +116,7 @@ cp.load = {
             self.count++;
             
             // Test for completion and exit if so
-            if (self.fileCount < self.fileTotal)
+            if (self.fileCount >= self.fileTotal)
                 return true;
             
             // Refer back to this method upon completion
@@ -136,7 +133,7 @@ cp.load = {
         var self = this;
         
         // Prep XML HTTP request
-        this.loadXmlHttp.open('GET', 'images.php',true);
+        this.loadXmlHttp.open('GET', 'include/images.php',true);
         this.loadXmlHttp.send();
         
         // When request is complete
@@ -153,12 +150,12 @@ cp.load = {
                 for ( var i = images.length; i--; ) {
                     var img = new Image();
                     var imgName = images[i];
-                    img.src = self.pathImg + images[i];
+                    img.src = self.imgUrl + images[i];
                     
                     img.onload = (function(val) {
                         // returning a function forces the load into another scope
                         return function() {
-                            self.total++;
+                            self.count++;
                         }
                     })(i);
                 }

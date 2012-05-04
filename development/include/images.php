@@ -4,7 +4,7 @@ Name: Image Listing
 Version: .01
 Desc: Allows JavaScript to request all of the file names present in the images folder.
 */
-$images = get_images('images');
+$images = get_images('../images');
 echo list_items($images);
 
 function get_images($dir) {

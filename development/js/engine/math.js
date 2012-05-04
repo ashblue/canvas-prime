@@ -1,11 +1,9 @@
 /*
-Name: Animation Sheets and Controls
+Name: Math processing
 Version: 1
-Desc: Allows users to create new animation sheets and control them.
-
-Notes: To pre-load images, the script relies on the init
-
-To-Do: Add logic for objects loading with cp.imgCount and cp.imgLoaded
+Desc: Contains a library of pre-built math equations, very
+useful for generating random numbers and simplifying other
+complex logic.
 */
 
 var cp = cp || {};
