@@ -1,8 +1,14 @@
 /*
 Name: Debugging Controls
-Version: 1
+Version: 1.1
 Desc: Allows you to display the current fps, total draw time, total update time,
 collision processing time, system lag, total enties, total frame time, and more.
+
+To-Do:
+- Still needs a method to create collision boxes in the draw() sequence
+- Needs to shave off the excess milliseconds when reporting response times
+- Init should take a string that gets processed for the features from debug
+  that a user wants.
 */
 
 var cp = cp || {};

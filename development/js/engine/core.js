@@ -60,6 +60,9 @@ cp.core = {
                 return console.log('Failure to load, no run logic given');
             window.onload = run;
             
+            // Activate keyboard keys
+            cp.input.init();
+            
         } else {
             this.fail();
         }
@@ -133,6 +136,9 @@ cp.core = {
             
             // Clean out killed items
             this.graveyardPurge();
+            
+            // Set key monitoring as appropriate
+            cp.input.monitor();
         
         // Loading logic
         } else {

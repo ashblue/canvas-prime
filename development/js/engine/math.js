@@ -24,7 +24,16 @@ cp.math = {
     // val = the number you wish to convert such as 5 (5 milliseconds)
     // base = the number to divide it by 1000 (conversion to a second)
     // round = how many numbers should it round up the returned result?
-    convert: function(val, base, round) {
-        return (val / base).toFixed(round);
+    // multiply = boolean that allows you to convert a number down instead of up
+    convert: function(val, base, round, multiply) {
+        // Convert a number up
+        if (multiply) {
+            var total = val * base;
+        // Convert down
+        } else {
+            var total = val / base;
+        }
+        
+        return total.toFixed(round);
     }
 };
