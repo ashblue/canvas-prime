@@ -52,6 +52,9 @@ cp.core = {
             // Run any extra logic added by user
             this.hookInit();
             
+            // Check to see if debugging is active
+            cp.debug.init();
+            
             // Run logic upon completion of all loading
             if (run === undefined)
                 return console.log('Failure to load, no run logic given');

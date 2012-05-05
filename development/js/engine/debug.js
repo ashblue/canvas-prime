@@ -8,6 +8,16 @@ collision processing time, system lag, total enties, total frame time, and more.
 var cp = cp || {};
 
 cp.debug = {
+    active: false,
+    init: function() {
+        // If debugging is not active kill all active functions to prevent unnecessary lag
+        if (this.active === false) {
+            this.start = this.end = this.recordStart = this.recordEnd = function() {
+                return;
+            };
+        }
+    },
+    
     // Millisecond starting value for Date.now()
     base: Date.now(),
     
@@ -85,7 +95,6 @@ cp.debug = {
             // Convert the total time to seconds
             var time = cp.math.convert(this.records[num].total, 1000, 2);
             
-            //console.log(this.results);
             var tag = this.records[num].id;
             this.results.push({
                 name: tag,
@@ -99,7 +108,9 @@ cp.debug = {
         this.display();
     },
     
-    // Creates a DOM element and injects it onto the user's screen
+    // Creates a DOM element and injects it onto the user's screen.
+    // This should be fixed up in the near future with some CSS and better DOM targeting
+    // to prevent excessive DOM calls.
     display: function() {
         // Clear existing list
         var el = document.getElementById('debug');
@@ -130,45 +141,4 @@ cp.debug = {
         // Inject assembled object
         document.body.appendChild(list);
     }
-    
-    // Compares the previous time with the retrieved time and returns a difference
-    //time: function(start, end) {
-    //    // Get the current time and calculate the difference
-    //    var current = Date.now();
-    //    var difference = current - this.past;
-    //    
-    //    // Store the current time as past for the next loop around
-    //    this.past = current;
-    //    
-    //    this.counter = 0;
-    //    
-    //    return difference;
-    //}
-    
-    //start: function() {
-    //    //console.time('timer1');
-    //    console.log(this.date.now());
-    //},
-    //
-    //end: function() {
-    //    //console.timeStamp('timer1');
-    //    console
-    //}
-    /* Coming soon */
-    
-    //fpsTimeLast: new Date(),
-    //    // Frome http://glacialflame.com/2010/07/measuring-fps-with-canvas/
-    //fpsStart: function() {
-    //    this.fpsTime = new Date();
-    //    this.fpsDif = Math.ceil((this.fpsTime.getTime() - this.fpsTimeLast.getTime()));
-    //    
-    //    if (this.fpsDif >= 1000) {
-    //        this.fps = this.fpsCount;
-    //        this.fpsCount = 0.0;
-    //        this.fpsTimeLast = this.fpsTime;
-    //    }
-    //},
-    //fpsEnd: function() {
-    //    this.fpsCount++;
-    //}
 };

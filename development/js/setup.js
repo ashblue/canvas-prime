@@ -5,6 +5,7 @@ console.log(cp);
 
 // List of scripts to load from js/objects
 cp.load.objects = ['square', 'square-evil'];
+cp.debug.active = true;
 
 // init(width, height, run onLoad function)
 cp.core.init(500, 500, function() {
