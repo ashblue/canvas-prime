@@ -18,5 +18,13 @@ cp.math = {
     // Returns a random positive or negative number
     randomPosNeg: function() {
         return Math.random() < 0.5 ? -1 : 1;
+    },
+    
+    // Number converter
+    // val = the number you wish to convert such as 5 (5 milliseconds)
+    // base = the number to divide it by 1000 (conversion to a second)
+    // round = how many numbers should it round up the returned result?
+    convert: function(val, base, round) {
+        return (val / base).toFixed(round);
     }
 };

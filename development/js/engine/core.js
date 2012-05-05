@@ -73,12 +73,18 @@ cp.core = {
     
     // Must be referenced via global object due to a self reference error
     animate: function() {
+        
+        
         requestAnimFrame( cp.core.animate );
         cp.core.draw();
+        
+        
     },
     
     // Drawing
-    draw: function() {        
+    draw: function() {
+        cp.debug.start();
+        // Clear out the canvas
         cp.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
         // When loading objects run the loading screen, else run the game
@@ -89,12 +95,17 @@ cp.core = {
             for (var obj = this.storage.length; obj--;) {
                 
                 // Run update functions before drawing anything to prevent screen pops for recently spawned items
+                cp.debug.recordStart('update');
                 this.storage[obj].update();
+                cp.debug.recordEnd('update');
                 
                 // Keeping this before collision test prevents crash on Game.kill(object)
-                this.storage[obj].draw(); 
+                cp.debug.recordStart('draw');
+                this.storage[obj].draw();
+                cp.debug.recordEnd('draw');
                 
                 // Check for a collision on an a type storage item to save loop execution time
+                cp.debug.recordStart('collisions');
                 if (this.storage[obj].type === 'a') {
                     // Check all items in the b type array only since its an a type item
                     for (var en = this.typeB.length; en--;) {
@@ -114,6 +125,7 @@ cp.core = {
                         }
                     }
                 }
+                cp.debug.recordEnd('collisions');
             }
             
             // Clean out killed items
@@ -124,6 +136,8 @@ cp.core = {
             cp.load.update();
             cp.load.draw();
         }
+        
+        cp.debug.end();
     },
     
     // Used to destroy entities when necessary instead of doing it during the loop and potentially blowing
