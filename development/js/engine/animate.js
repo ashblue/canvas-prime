@@ -5,53 +5,66 @@ Desc: Allows users to create new animation sheets and control them.
 
 Notes: To pre-load images, the script relies on the init
 
-To-Do: Add logic for objects loading with cp.imgCount and cp.imgLoaded
+To-Do:
+- It may be possible to cache an animation sheet and re-use it for
+  other objects. Would save a lot of processing power.
+  Not too sure how to do this though.
 */
 
 var cp = cp || {};
 
 cp.animate = {
-    
+    // Creates an animation sheet, should only be run in an objects init
+    // due to the processing intensity.
     sheet: Class.extend({
-        pathImgs: 'images/',
-        
-        init: function(file, animW, animH) {
+        init: function(file, frameW, frameH) {
             var self = this;
             
-            // create url string
-            this.url = this.pathImgs + file;
-            
             // Set animation width and height
-            this.animWidth = animW;
-            this.animHeight = animH;
+            this.frame.width = frameW;
+            this.frame.height = frameH;
+                        
+            // Create url string
+            this.url = this.path + file;
             
-            // get image
+            // Get image and create it
             this.img = new Image();
             this.img.src = this.url;
             this.img.onload = function() {
                 self.width = self.img.width;
                 self.height = self.img.height;
                 
-                self.imgSlice();
+                // Since everything has been loaded for the image, slice it
+                self.slice();
             }
         },
         
-        map: new Array(),
-        imgSlice: function() {
+        // Path to images
+        path: 'images/',
+        
+        // Create a frame variable to store various frame details
+        frame: {},
+        
+        // Creates an array to map out and store frames
+        map: [],
+        
+        // Slices the image up and stores it inside map
+        // Slices horizontally first, then startes on a new line, just like a typewriter
+        slice: function() {
             // count horizontal spaces
-            var horizCount = Math.round(this.width / this.animWidth);
+            var countHorizontal = (this.width / this.frame.width).toFixed();
             
             // count vertical spaces
-            var vertCount = Math.round(this.height / this.animHeight);
+            var countVertical = (this.height / this.frame.height).toFixed();
             
             // for each vertical space
-            for (var height = 0; height < vertCount; height++) {
+            for ( var height = countVertical; height--; ) {
                 // for each horizontal space setup x and y coordinates
-                for (var slice = 0; slice < horizCount; slice++) {
-                    // Push a new x and y array item for the current sheet item
+                for ( var slice = countHorizontal; slice--; ) {
+                    // Push a new x and y array object for the current frame
                     this.map.push({
-                        x: this.animWidth * slice,
-                        y: this.animHeight * height
+                        x: this.frame.width * slice,
+                        y: this.frame.height * height
                     });
                 }
             }
@@ -59,21 +72,7 @@ cp.animate = {
     }),
 
     // Setup an animation sequence that can be cached
-    seq: Class.extend({
-        // Infinitely loop animation
-        repeat: false,
-        
-        // Set alpha transparency
-        alpha: 1,
-        
-        // Completely flip the axis
-        flipX: false,
-        flipY: false,
-        
-        // modify the returned image location, will make the image not line up with its container
-        offsetX: 0,
-        offsetY: 0,
-        
+    cycle: Class.extend({
         // Takes information relevant to the particular animation and an object
         // to quickly set various parameters
         init: function(sheet, interval, frames, obj) {
@@ -86,6 +85,23 @@ cp.animate = {
             this.quickSet(obj);
         },
         
+        // Infinitely loop animation
+        repeat: false,
+        
+        /* Note: alpha should be part of the sheet, its part of an entity */
+        // Set alpha transparency
+        alpha: 1,
+        
+        /* Note: currently broken */
+        // Completely flip the axis
+        flipX: false,
+        flipY: false,
+        
+        // modify the returned image location, will make the image not line up with its container
+        offsetX: 0,
+        offsetY: 0,
+        
+        /* Note: should be part of the core and re-usable */
         // a shortcut for quickly setting params via processing an object
         quickSet: function(params) {
             for (var par in params) {
@@ -93,23 +109,10 @@ cp.animate = {
             }
         },
         
+        // Current frame
         current: 0,
-        /*
-         * Emergency fix NEEDED!
-         * In order for cycle animations to work, a base set of time need to be composed.
-         * This means two very important things. Update needs to be based upon a setinterval and draw
-         * based on a requestAnimation frame.
-         * 
-         * Handeling the game in this manner makes sure that updates occur in
-         *
-         * Not doing things in this manner will make the entire game subjective to request animation frame's
-         * speed. Which means your update logic may fire at an extremely low rate and make the game run
-         * very slow. Since request animation frame fluctuates, it can make the game's speed extremely
-         * volatile and inconsistent.
-         *
-         * Timers should be based upon real time, not requestAnimation frame.
-        */
         
+        // Starts up the animation
         run: function() {
             var self = this;
             this.animRun = setInterval(function() {self.cycle();}, self.speed);
@@ -161,7 +164,7 @@ cp.animate = {
             if (this.flipY) {
                 var vert = -1;
                 // Reverse y and add difference in height
-                canvasY = canvasY * vert - this.sheet.animHeight;
+                canvasY = canvasY * vert - this.sheet.frame.height;
             } else {
                 var vert = 1;
             }
@@ -174,12 +177,12 @@ cp.animate = {
                 this.sheet.img, // img
                 img.x, // crop x location
                 img.y, // crop y location
-                this.sheet.animWidth, // width of crop window
-                this.sheet.animHeight, // height of crop window
+                this.sheet.frame.width, // width of crop window
+                this.sheet.frame.height, // height of crop window
                 canvasX, // canvas x location
                 canvasY,// canvas y location
-                this.sheet.animWidth, // canvas width
-                this.sheet.animHeight // canvas height
+                this.sheet.frame.width, // canvas width
+                this.sheet.frame.height // canvas height
             );
             
             // Fix Set alpha, probably a better way to do this by including it in the core draw() object
@@ -201,6 +204,7 @@ cp.animate = {
             this.current = 0;
         },
         
+        /* Note: Remove this and set id in init() */
         // Increments universal IDs placed on all objects, needs to be put into the core of the game engine.
         // Currently an ID incrementer already exists, need to be modified to take into account animation sheets too.
         id: function() {

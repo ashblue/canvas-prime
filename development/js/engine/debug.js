@@ -7,6 +7,7 @@ collision processing time, system lag, total enties, total frame time, and more.
 To-Do:
 - Still needs a method to create collision boxes in the draw() sequence
 - Needs to shave off the excess milliseconds when reporting response times
+- Other for unaccounted time (inputs, lag, graveyard, ect)
 - Init should take a string that gets processed for the features from debug
   that a user wants.
 */
