@@ -1,71 +1,57 @@
 /*
  *A quick demo of working with animation sheets and what you can do
- * NOTE: Ninja flip is slightly offset because the animation sheet is screwed up, need to fix
 */
 
-var animTest = Entity.extend({
-    width: 129,
-    height: 68,
-    x: 0,
+cp.template.AnimTest = cp.template.Entity.extend({
+    width: 10,
+    height: 10,
+    x: 100,
     y: 100,
     speed: 3,
+    offset: {
+        x: -18,
+        y: -50
+    },
+    flip: {
+        x: true,
+        y: false
+    },
+    angle: 45,
+    zIndex: 1,
+    
+    alpha: .7,
     
     init: function() {
         // Create and set an animation sheet
-        var animSheet = new AnimSheet('character.png', 129, 68);
+        var animSheet = new cp.animate.sheet('decaf.png', 50, 90);
         
         // Choose a particular animation sequence from the sheet
         // Anim(sheet, speed in milli, frame order, opt params)
-        this.animRun = new Anim(animSheet, 150, [12, 13], {
-            repeat: true,
-            alpha: 1,
-            offsetX: 0,
-            offsetY: 0,
-            flipX: false,
-            flipY: false
-        });
+        this.animRun = new cp.animate.cycle(animSheet, .4, [0, 1, 2], true);
         
         // Not used, but multiple animations can be created like this
-        this.animStand = new Anim(animSheet, 100, [11]);
+        this.animStand = new cp.animate.cycle(animSheet, 500, [11]);
         
         // Set the current animation, can also be changed in the update
         this.animSet = this.animRun;
     },
     
     update: function() {
+        // Draws the actual hitbox of the object with a red box
+        cp.ctx.fillStyle = '#f00';
+        cp.ctx.fillRect(this.x, this.y, this.width, this.height);
+        
         // Calls parent function and necessary animation update checks
         this._super();
 
         // Literally resets the entire animation and runs it, good for conditionally firing a set animation
         // animRun.reset();
         
-        // Test for re-ordering items (similar to CSS z-indexing except it just changes the draw order)
-        if (! this.test) {
-            this.test = true;
-            
-            // Set to first item in draw order, current an issue with this firing in init, must be fired in
-            // update until fixed.
-            this.order(0);
-        }
-        
-        // Makes ninja run back and forth for demo purposes
-        if (this.x < 52) { // negative on canvas
-            this.speed = 3;
-            this.animRun.flipX = false;
-            this.animRun.offsetX = -52;
-        } else if (this.x > Game.width - 12) { // outside canvas bounds
-            this.speed = -3;
-            this.animRun.flipX = true;
-            this.animRun.offsetX = 0;
-        } else if (this.animRun.flipX == true &&
-            this.x < 80) // slow when reaching left wall
-            this.speed += .15;
-        else if (this.animRun.flipX == false  &&
-            this.x > Game.width - 40) { // slow when reaching right wall
-            this.speed -= .15;
-        }
+        // Re-ordering items (similar to CSS z-indexing except it just changes the draw order)
+        cp.game.sort();
         
         this.x += this.speed;
+        this.y += this.speed;
     },
     
     draw: function() {

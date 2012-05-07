@@ -6,9 +6,8 @@ Desc: Allows users to create new animation sheets and control them.
 Notes: To pre-load images, the script relies on the init
 
 To-Do:
-- It may be possible to cache an animation sheet and re-use it for
-  other objects. Would save a lot of processing power.
-  Not too sure how to do this though.
+- Rotate needs a paramter for point of angle from the passed object, defaults to the middle
+  currently.
 */
 
 var cp = cp || {};
@@ -58,9 +57,9 @@ cp.animate = {
             var countVertical = (this.height / this.frame.height).toFixed();
             
             // for each vertical space
-            for ( var height = countVertical; height--; ) {
+            for ( var height = 0; height < countVertical; height++ ) {
                 // for each horizontal space setup x and y coordinates
-                for ( var slice = countHorizontal; slice--; ) {
+                for ( var slice = 0; slice < countHorizontal; slice++ ) {
                     // Push a new x and y array object for the current frame
                     this.map.push({
                         x: this.frame.width * slice,
@@ -75,39 +74,28 @@ cp.animate = {
     cycle: Class.extend({
         // Takes information relevant to the particular animation and an object
         // to quickly set various parameters
-        init: function(sheet, interval, frames, obj) {
-            this.id();
+        init: function(sheet, interval, frames, repeat) {
+            this.id = cp.core.idNew();
             
-            // Store information for future usage
-            this.sheet = sheet,
-            this.speed = interval,
+            // Stores the sheet used to create the frames
+            this.sheet = sheet;
+            
+            // Converts and records the speed from seconds to milliseconds
+            interval = cp.math.convert(interval, 1000, 0, true);
+            this.speed = interval;
+            
+            // An array of frames to cycle through
             this.frames = frames;
-            this.quickSet(obj);
+            
+            // Optional JSON object to set extra parameters such as repeat, offset, ect.
+            this.repeat = repeat;
         },
         
         // Infinitely loop animation
         repeat: false,
         
-        /* Note: alpha should be part of the sheet, its part of an entity */
         // Set alpha transparency
         alpha: 1,
-        
-        /* Note: currently broken */
-        // Completely flip the axis
-        flipX: false,
-        flipY: false,
-        
-        // modify the returned image location, will make the image not line up with its container
-        offsetX: 0,
-        offsetY: 0,
-        
-        /* Note: should be part of the core and re-usable */
-        // a shortcut for quickly setting params via processing an object
-        quickSet: function(params) {
-            for (var par in params) {
-                this[par] = params[par];
-            }
-        },
         
         // Current frame
         current: 0,
@@ -115,7 +103,9 @@ cp.animate = {
         // Starts up the animation
         run: function() {
             var self = this;
-            this.animRun = setInterval(function() {self.cycle();}, self.speed);
+            this.animRun = setInterval(
+                function() {self.cycle();},
+                self.speed);
         },
         
         cycle: function() {
@@ -140,37 +130,22 @@ cp.animate = {
         },
         
         // Crops and returns a full image
-        crop: function(x, y, width, height) {
+        crop: function(obj) {
             // dump image x and y data fur current frame
             var img = this.get();
             
             // Set alpha
-            cp.ctx.globalAlpha = this.alpha;
+            cp.ctx.globalAlpha = obj.alpha;
             
-            // Canvas locations (setup for manipulation by flipping)
-            var canvasX = x + this.offsetX;
-            var canvasY = y + this.offsetY;
+            // Canvas location with offset
+            this.canvasX = obj.x + obj.offset.x;
+            this.canvasY = obj.y + obj.offset.y;
             
-            // Flip image?
-            // Note translate is intense, look for an alternative and prevent this from firing as much as possible
-            if (this.flipX) {
-                var horiz = -1;
-                // X coordinate must be reversed
-                canvasX = canvasX * horiz;
-            } else {
-                var horiz = 1;
-            }
+            // Runs rotation if rotate is set
+            this.rotateStart(obj);
             
-            if (this.flipY) {
-                var vert = -1;
-                // Reverse y and add difference in height
-                canvasY = canvasY * vert - this.sheet.frame.height;
-            } else {
-                var vert = 1;
-            }
-            
-            // Set scale initally
-            cp.ctx.scale(horiz, vert);
+            // Runs flip image if a flip boolean is set
+            this.flipStart(obj);
             
             // Draw the image
             cp.ctx.drawImage(
@@ -179,15 +154,87 @@ cp.animate = {
                 img.y, // crop y location
                 this.sheet.frame.width, // width of crop window
                 this.sheet.frame.height, // height of crop window
-                canvasX, // canvas x location
-                canvasY,// canvas y location
+                this.canvasX, // canvas x location
+                this.canvasY,// canvas y location
                 this.sheet.frame.width, // canvas width
                 this.sheet.frame.height // canvas height
             );
             
-            // Fix Set alpha, probably a better way to do this by including it in the core draw() object
             cp.ctx.globalAlpha = 1;
-            cp.ctx.scale(horiz, vert);
+            
+            
+            
+            // Ends flip if set
+            this.flipEnd(obj);
+            
+            // Ends rotation if set
+            this.rotateEnd(obj);
+        },
+        
+        // Note: Should take a point of rotation, currently sets it to the middle
+        rotateStart: function(obj) {
+            if (obj.angle) {
+                // Translate to the object's center (x + (width / 2), y + (height / 2)) and rotate it
+                cp.ctx.translate(
+                    this.canvasX + (this.sheet.frame.width / 2),
+                    this.canvasY + (this.sheet.frame.height / 2));
+                
+                cp.ctx.rotate(Math.PI / 180 * obj.angle);
+                
+                // Alter the drawImage with (x, y, width, height) (-width / 2, -height / 2, width, height)
+                this.canvasX = - this.sheet.frame.width / 2;
+                this.canvasY = - this.sheet.frame.height / 2;
+            }
+        },
+        
+        rotateEnd: function(obj) {
+            if (obj.angle) {
+                // Reverse the angle
+                cp.ctx.rotate(- Math.PI / 180 * obj.angle);
+                
+                // Reverse the tanslate
+                cp.ctx.translate(
+                    (obj.x + obj.offset.x + (this.sheet.frame.width / 2)) * -1,
+                    (obj.y + obj.offset.y + (this.sheet.frame.height / 2)) * -1);
+            }
+        },
+        
+        flipStart: function(obj) {
+            if (obj.flip.x && obj.flip.y) {
+                // X coordinate must be reversed
+                this.canvasX = (this.canvasX * -1) - this.sheet.frame.width;
+                
+                // Reverse y and add difference in height
+                this.canvasY = (this.canvasY * -1) - this.sheet.frame.height;
+                
+                // Set scale initally
+                cp.ctx.scale(-1, -1);
+                
+            } else if (obj.flip.x) {
+                // X coordinate must be reversed
+                this.canvasX = (this.canvasX * -1) - this.sheet.frame.width;
+                
+                // Set scale initally
+                cp.ctx.scale(-1, 1);
+                
+            } else if (obj.flip.y) {
+                // Reverse y and add difference in height
+                this.canvasY = (this.canvasY * -1) - this.sheet.frame.height;
+                
+                // Set scale initally
+                cp.ctx.scale(1, -1);
+            }
+        },
+        
+        // Reverse flips the scale
+        flipEnd: function(obj) {
+            if (obj.flip.x && obj.flip.y) {
+                cp.ctx.scale(-1, -1);
+            } else if (obj.flip.y) {
+                cp.ctx.scale(1, -1);
+            } else if (obj.flip.x) {
+                cp.ctx.scale(-1, 1);
+            }
         },
         
         // Restarts the animation for the first frame manually, plays if active
@@ -202,19 +249,6 @@ cp.animate = {
             
             // Set current frame to 0
             this.current = 0;
-        },
-        
-        /* Note: Remove this and set id in init() */
-        // Increments universal IDs placed on all objects, needs to be put into the core of the game engine.
-        // Currently an ID incrementer already exists, need to be modified to take into account animation sheets too.
-        id: function() {
-            // remove this later by adding it to the game core
-            if (! cp.core.idAsset)
-                cp.core.idAsset = 0;
-            
-            // keep this
-            this.id = cp.core.idAsset;
-            cp.core.idAsset++;
         }
     })
 };

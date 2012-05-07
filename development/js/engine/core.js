@@ -13,6 +13,12 @@ cp.core = {
     // Id counter for spawning elements
     id: 1,
     
+    // Increments and sets a new ID
+    idNew: function() {
+        this.id++;
+        return this.id;
+    },
+    
     // Sets the screens width and height, method can be accessed at any time
     width: 500,
     height: 500,
@@ -67,6 +73,7 @@ cp.core = {
             this.fail();
         }
     },
+    
     // Place your response/logic here for users that can't load Canvas
     fail: function() {
         alert('Canvas has failed to load in your browser. Please download/run Google Chrome, then visit this page again using it.');
@@ -152,18 +159,19 @@ cp.core = {
     // Used to destroy entities when necessary instead of doing it during the loop and potentially blowing
     // everything up by accident.
     graveyard: [],
+    
     // Permanently erases all graveyard items at the end of a loop
     graveyardPurge: function() {
         if (this.graveyard) {
             for (var obj = this.graveyard.length; obj--;) {
-                this.kill(this.graveyard[obj]);
+                this.remove(this.graveyard[obj]);
             }
             this.graveyard = [];
         }
     },
     
     // Cleans the killed object completely out of memory permanently
-    kill: function(object) {
+    remove: function(object) {
         // Remove from main storage
         for (var i = this.storage.length; i--;) {
             if (this.storage[i] == object)
@@ -196,5 +204,12 @@ cp.core = {
         
         // Clean out of browser's memory permanently
         delete object;
+    },
+    
+    // A shortcut for quickly setting params via processing an object
+    quickSet: function(object, target) {
+        for (var name in object) {
+            target[name] = object[name];
+        }
     },
 };

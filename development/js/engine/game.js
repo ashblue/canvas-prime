@@ -10,9 +10,18 @@ To-Do: Add logic for objects loading with cp.imgCount and cp.imgLoaded
 
 var cp = cp || {};
 
-cp.game = {
-    // An incremental id counter added to each newly created asset (gives it a unique id)
-    id: 1,
+cp.game = {  
+    // Manually force sorts all items present on the screen based upon their zIndex
+    sort: function(loc) {        
+        // Get index of this
+        var index = cp.storage.indexOf(this);
+        
+        // Delete old location
+        cp.storage.splice(index, 1);
+        
+        // Inject new location
+        cp.storage.splice(loc, 0, this);
+    },
     
     // You may get all entities by a contained value name.
     // Second parameters is a filter that will only retrieve the value
@@ -47,8 +56,9 @@ cp.game = {
         // Create the entity and temporarily store it for reference purposes
         var entity = new cp.template[name];
         
-        cp.core.storage.push(entity.spawn(x, y)); // Pushes your new variable into an array and runs its spawn function
-        entity.id = cp.core.id;
+        // Pushes your new variable into an array
+        cp.core.storage.push(entity.spawn(x, y)); 
+        entity.id = cp.core.idNew();
         
         // Push into type storage for quicker collision detection
         switch (entity.type) {

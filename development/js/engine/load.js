@@ -9,7 +9,7 @@ var cp = cp || {};
 cp.load = {
     active: true,
     count: 0,
-    total: 0,
+    total: -1,
     
     init: function() {
         // Begin loading files
@@ -92,7 +92,7 @@ cp.load = {
         }
         
         // Update total asset count
-        this.total += this.objects.length;
+        this.total = this.objects.length;
         
         // Store the total number of objects to loop through
         this.fileTotal = this.objects.length;

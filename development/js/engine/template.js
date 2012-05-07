@@ -23,6 +23,9 @@ cp.template = {
         // friendly = a, enemy = b, passive = 0 (yes, its a zero and not the letter o)
         type: 0,
         
+        // zIndex used to determine object order in the array
+        zIndex: false,
+        
         // placeholders to detect animation id change
         // Must be a -1 to be detected easily, decreases logic because there are no -1 ids ever
         animCur: {
@@ -31,21 +34,28 @@ cp.template = {
         animSet: {
             id: -1
         },
-    
+        
+        // place code before each draw sequence here
         update: function() {
             this.animNew();
             
-            // place code before each draw sequence here
+            // Call this._super() to continue drawing
         },
-        collide: function(obj) {
-            // What happens when elements collide?
-        },
+        
         draw: function() {
             // If an animation sheet has been set, it will fired here
             if (this.animCur.id != -1) {
-                this.animSet.crop(this.x, this.y, this.width, this.height);
+                this.animSet.crop(this);
             }
+            
+            // Call this._super() to continue drawing
         },
+        
+        // Passes back the collided object when a collision between two elements occurs
+        collide: function(obj) {
+            
+        },
+        
         spawn: function(x,y) {
             if (x) this.x = x;
             if (y) this.y = y;
@@ -72,19 +82,6 @@ cp.template = {
                 this.animSet.run();
                 this.animCur = this.animSet;
             }        
-        },
-        
-        // Moves an item in storage, normally used to force an item to draw on top of others
-        // Might be better to give each object a z-index and take that into account when re-ordering via order
-        order: function(loc) {        
-            // Get index of this
-            var index = cp.storage.indexOf(this);
-            
-            // Delete old location
-            cp.storage.splice(index, 1);
-            
-            // Inject new location
-            cp.storage.splice(loc, 0, this);
         }
     })
 };
