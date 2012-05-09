@@ -14,7 +14,8 @@ cp.game = {
     // Manually force sorts all items present on the screen based upon their zIndex
     sort: function(loc) {
         // Loop through storage
-            // Get
+            // Get all elements with a zIndex
+            // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/sort
         
         // Get index of this
         var index = cp.storage.indexOf(this);
