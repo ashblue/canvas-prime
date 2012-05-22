@@ -11,5 +11,5 @@ cp.debug.active = true;
 // init(width, height, run onLoad function)
 cp.core.init(500, 500, function() {
     cp.game.spawn('AnimTest');
-    //cp.game.spawn('Image');
+    cp.game.spawn('Image');
 });

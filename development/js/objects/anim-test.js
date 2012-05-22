@@ -16,11 +16,11 @@ cp.template.AnimTest = cp.template.Entity.extend({
     },
     // Flip the axis
     flip: {
-        x: false,
+        x: true,
         y: false
     },
     // 0 to 360 degrees
-    angle: 0,
+    angle: 45,
     zIndex: 1,
     
     // Transparency

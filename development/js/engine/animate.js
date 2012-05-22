@@ -17,24 +17,25 @@ cp.animate = {
     // due to the processing intensity.
     sheet: Class.extend({
         init: function(file, frameW, frameH) {
-            this.id = cp.core.idNew();
+            var self = this;
             
+            // Set animation width and height
+            this.frameW = frameW;
+            this.frameH = frameH;
+                        
+            // Create url string
             this.url = this.path + file;
             
             // Get image and create it
             this.img = new Image();
             this.img.src = this.url;
-            
-            // Set animation width and height
-            this.frameW = frameW;
-            this.frameH = frameH;
-            
-            // Image is already loaded, so set the width and height right away
+
             this.width = this.img.width;
             this.height = this.img.height;
+                
+                // Since everything has been loaded for the image, slice it
+                this.slice();
             
-            // Slice up the image into a map
-            this.slice();
         },
         
         // Path to images
@@ -88,8 +89,6 @@ cp.animate = {
             
             // Optional JSON object to set extra parameters such as repeat, offset, ect.
             this.repeat = repeat;
-            
-            console.log(this);
         },
         
         // Infinitely loop animation
@@ -163,6 +162,8 @@ cp.animate = {
             
             cp.ctx.globalAlpha = 1;
             
+            
+            
             // Ends flip if set
             this.flipEnd(obj);
             
@@ -175,14 +176,14 @@ cp.animate = {
             if (obj.angle) {
                 // Translate to the object's center (x + (width / 2), y + (height / 2)) and rotate it
                 cp.ctx.translate(
-                    this.canvasX + (this.sheet.frame.width / 2),
-                    this.canvasY + (this.sheet.frame.height / 2));
+                    this.canvasX + (this.sheet.frameW / 2),
+                    this.canvasY + (this.sheet.frameH / 2));
                 
                 cp.ctx.rotate(Math.PI / 180 * obj.angle);
                 
                 // Alter the drawImage with (x, y, width, height) (-width / 2, -height / 2, width, height)
-                this.canvasX = - this.sheet.frame.width / 2;
-                this.canvasY = - this.sheet.frame.height / 2;
+                this.canvasX = - this.sheet.frameW / 2;
+                this.canvasY = - this.sheet.frameH / 2;
             }
         },
         
@@ -193,32 +194,32 @@ cp.animate = {
                 
                 // Reverse the tanslate
                 cp.ctx.translate(
-                    (obj.x + obj.offset.x + (this.sheet.frame.width / 2)) * -1,
-                    (obj.y + obj.offset.y + (this.sheet.frame.height / 2)) * -1);
+                    (obj.x + obj.offset.x + (this.sheet.frameW / 2)) * -1,
+                    (obj.y + obj.offset.y + (this.sheet.frameH / 2)) * -1);
             }
         },
         
         flipStart: function(obj) {
             if (obj.flip.x && obj.flip.y) {
                 // X coordinate must be reversed
-                this.canvasX = (this.canvasX * -1) - this.sheet.frame.width;
+                this.canvasX = (this.canvasX * -1) - this.sheet.frameW;
                 
                 // Reverse y and add difference in height
-                this.canvasY = (this.canvasY * -1) - this.sheet.frame.height;
+                this.canvasY = (this.canvasY * -1) - this.sheet.frameH;
                 
                 // Set scale initally
                 cp.ctx.scale(-1, -1);
                 
             } else if (obj.flip.x) {
                 // X coordinate must be reversed
-                this.canvasX = (this.canvasX * -1) - this.sheet.frame.width;
+                this.canvasX = (this.canvasX * -1) - this.sheet.frameW;
                 
                 // Set scale initally
                 cp.ctx.scale(-1, 1);
                 
             } else if (obj.flip.y) {
                 // Reverse y and add difference in height
-                this.canvasY = (this.canvasY * -1) - this.sheet.frame.height;
+                this.canvasY = (this.canvasY * -1) - this.sheet.frameH;
                 
                 // Set scale initally
                 cp.ctx.scale(1, -1);
