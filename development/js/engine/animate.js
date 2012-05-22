@@ -17,25 +17,24 @@ cp.animate = {
     // due to the processing intensity.
     sheet: Class.extend({
         init: function(file, frameW, frameH) {
-            var self = this;
+            this.id = cp.core.idNew();
             
-            // Set animation width and height
-            this.frame.width = frameW;
-            this.frame.height = frameH;
-                        
-            // Create url string
             this.url = this.path + file;
             
             // Get image and create it
             this.img = new Image();
             this.img.src = this.url;
-            this.img.onload = function() {
-                self.width = self.img.width;
-                self.height = self.img.height;
-                
-                // Since everything has been loaded for the image, slice it
-                self.slice();
-            }
+            
+            // Set animation width and height
+            this.frameW = frameW;
+            this.frameH = frameH;
+            
+            // Image is already loaded, so set the width and height right away
+            this.width = this.img.width;
+            this.height = this.img.height;
+            
+            // Slice up the image into a map
+            this.slice();
         },
         
         // Path to images
@@ -51,10 +50,10 @@ cp.animate = {
         // Slices horizontally first, then startes on a new line, just like a typewriter
         slice: function() {
             // count horizontal spaces
-            var countHorizontal = (this.width / this.frame.width).toFixed();
+            var countHorizontal = (this.width / this.frameW).toFixed();
             
             // count vertical spaces
-            var countVertical = (this.height / this.frame.height).toFixed();
+            var countVertical = (this.height / this.frameH).toFixed();
             
             // for each vertical space
             for ( var height = 0; height < countVertical; height++ ) {
@@ -62,8 +61,8 @@ cp.animate = {
                 for ( var slice = 0; slice < countHorizontal; slice++ ) {
                     // Push a new x and y array object for the current frame
                     this.map.push({
-                        x: this.frame.width * slice,
-                        y: this.frame.height * height
+                        x: this.frameW * slice,
+                        y: this.frameH * height
                     });
                 }
             }
@@ -89,6 +88,8 @@ cp.animate = {
             
             // Optional JSON object to set extra parameters such as repeat, offset, ect.
             this.repeat = repeat;
+            
+            console.log(this);
         },
         
         // Infinitely loop animation
@@ -152,17 +153,15 @@ cp.animate = {
                 this.sheet.img, // img
                 img.x, // crop x location
                 img.y, // crop y location
-                this.sheet.frame.width, // width of crop window
-                this.sheet.frame.height, // height of crop window
+                this.sheet.frameW, // width of crop window
+                this.sheet.frameH, // height of crop window
                 this.canvasX, // canvas x location
                 this.canvasY,// canvas y location
-                this.sheet.frame.width, // canvas width
-                this.sheet.frame.height // canvas height
+                this.sheet.frameW, // canvas width
+                this.sheet.frameH // canvas height
             );
             
             cp.ctx.globalAlpha = 1;
-            
-            
             
             // Ends flip if set
             this.flipEnd(obj);

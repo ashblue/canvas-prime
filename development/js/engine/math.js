@@ -12,7 +12,7 @@ cp.math = {
     // Random should only be run in the init for best practice
     random: function(max, min) {
         if (!min) min = 1;
-        return Math.floor(Math.random() * (max - min) + min);
+        return Math.floor(Math.random() * (max - min + 1) + min);
     },
     
     // Returns a random positive or negative number

@@ -16,6 +16,17 @@ cp.template = {
         width: 0,
         height: 0,
         
+        // Offsets the image from the hitbox
+        offset: {
+            x: 0,
+            y: 0
+        },
+        
+        flip: {
+            x: false,
+            y: false
+        },
+        
         // All elements get 1 hp by default
         hp: 1,
         
