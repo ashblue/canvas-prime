@@ -7,7 +7,7 @@ Example usage: new cp.timer(3.25);
 
 var cp = cp || {};
 
-cp.timer = Class.extend({
+cp.timer = Asset.extend({
     // Time is passed in seconds, not milliseconds
     init: function(time) {
         // Convert time and store it as milliseconds

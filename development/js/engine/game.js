@@ -39,8 +39,7 @@ cp.game = {
             for (var j in cp.core.storage) {
                 if (cp.core.storage[j][(name)] == val) stack.push(cp.core.storage[j]);
             }
-        }
-        else {
+        } else {
             for (var j in cp.core.storage) {
                 if (cp.core.storage[j][(name)]) stack.push(cp.core.storage[j]);
             }
@@ -60,8 +59,18 @@ cp.game = {
         // Create the entity and temporarily store it for reference purposes
         var entity = new cp.template[name];
         
+        // Apply the passed parameters to init
+        if (arguments.length > 1 && entity.init) {
+            // Remove name argument
+            var args = [].slice.call(arguments, 1);
+            // Fire the init with proper arguments
+            entity.init.apply(entity, args);
+        } else if (entity.init) {
+            entity.init();
+        }
+        
         // Pushes your new variable into an array
-        cp.core.storage.push(entity.spawn(x, y)); 
+        cp.core.storage.push(entity); 
         entity.id = cp.core.idNew();
         
         // Push into type storage for quicker collision detection

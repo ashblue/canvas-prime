@@ -13,6 +13,17 @@ own keyboard events with an object that can be destroyed or created.
 var cp = cp || {};
 
 cp.input = {
+    init: function() {
+        // Creates keyboard monitoring
+        window.addEventListener('keydown', this.store, true);
+        window.addEventListener('keyup', this.remove, true);
+        
+        // Mouse logic only relative to the Canvas
+        cp.core.canvas.addEventListener('mousemove', this.move, true);
+        cp.core.canvas.addEventListener('mousedown', this.store, true);
+        cp.core.canvas.addEventListener('mouseup', this.remove, true);
+    },
+    
     // Container for storing all current keys
     storage: {},
     
@@ -22,34 +33,42 @@ cp.input = {
     // Key items ready for deletion
     graveyard: [],
     
-    init: function() {
-        // Note: Can this be stored inside the cp object instead of window and still
-        // work correctly?
-        window.addEventListener('keydown', this.store, true);
-        window.addEventListener('keyup', this.remove, true);
+    // Returns a mouse or keyboard key depending upon the called event
+    getKey: function(e) {
+        // Keyboards don't have the mouse's button property, check for it
+        // to verify a keyboard is firing
+        if (e.button === undefined) {
+            return e.keyCode;
+            
+        // Mouse input, get the clicked button
+        } else {
+            return e.button;
+        }
     },
     
     // Stores the current key event in an array
     store: function(e) {
+        var key = cp.input.getKey(e);
+        
         // Get current status of existing keyCode (if present)
-        var status = cp.input.storage[e.keyCode];
+        var status = cp.input.storage[key];
         
         // Set as active only if the existing key is not already set
         if ( ! status ) {
-            cp.input.storage[e.keyCode] = 'active';
+            cp.input.storage[key] = 'active';
         }
     },
     
     // Marks the current key for deletion
     remove: function(e) {
-        cp.input.storage[e.keyCode] = 'remove';
+        var key = cp.input.getKey(e);
+        
+        cp.input.storage[key] = 'remove';
     },
     
     // Monitors active keys and modifies them as necessary from each frame
     // Note: This loop could be better optimized
-    monitor: function() {
-        //console.log(this.storage);
-        
+    monitor: function() {        
         // Loop through all keyboard objects and modify as necessary
         for ( var key in this.storage ) {
             // Cache active object value for comparison only, cannot be set
@@ -127,8 +146,21 @@ cp.input = {
         }
     },
     
+    // Special function relative to the mouse
+    move: function(e) {
+        cp.input.mouse = {
+            x: e.pageX,
+            y: e.pageY
+        }
+    },
+    
     // Archived library so you don't have to remember the keyboard event code
     library: {
+        // Mouse
+        'clickLeft': 0,
+        'clickMiddle': 1,
+        'clickRight': 2,
+        
         // Primary
         'enter': 13,
         'tab': 9,
@@ -238,31 +270,5 @@ cp.input = {
         'f10': 121,
         'f11': 122,
         'f12': 123
-    },
-    
-    // Special functions relative to the mouse
-    // Note: Currently a work in progress (WIP)
-    mouse: {
-        library: {
-            left: 0,
-            middle: 1,
-            right: 2
-        },
-        
-        // Return mousedown, up, click, or dblclick
-        event: function() {
-            
-        },
-        
-        // Returns current x coordinate relative to the Canvas window
-        x: function() {
-            
-        },
-        
-        // Returns current y coordinate relative to the Canvas window
-        y: function() {
-            
-        }
     }
-
 };

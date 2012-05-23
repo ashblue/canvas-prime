@@ -67,12 +67,6 @@ cp.template = {
             
         },
         
-        spawn: function(x,y) {
-            if (x) this.x = x;
-            if (y) this.y = y;
-    
-            return this;
-        },
         kill: function() {  
             // Push into the graveyard for removal post loop processing to
             // prevent referencing a non-existent objects.

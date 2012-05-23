@@ -3,8 +3,6 @@ Name: Animation Sheets and Controls
 Version: 1
 Desc: Allows users to create new animation sheets and control them.
 
-Notes: To pre-load images, the script relies on the init
-
 To-Do:
 - Rotate needs a paramter for point of angle from the passed object, defaults to the middle
   currently.
@@ -15,7 +13,7 @@ var cp = cp || {};
 cp.animate = {
     // Creates an animation sheet, should only be run in an objects init
     // due to the processing intensity.
-    sheet: Class.extend({
+    sheet: Asset.extend({
         init: function(file, frameW, frameH) {
             var self = this;
             
@@ -30,12 +28,13 @@ cp.animate = {
             this.img = new Image();
             this.img.src = this.url;
 
-            this.width = this.img.width;
-            this.height = this.img.height;
-                
+            this.img.onload = function() {
+                self.width = self.img.width;
+                self.height = self.img.height;
+                    
                 // Since everything has been loaded for the image, slice it
-                this.slice();
-            
+                self.slice();   
+            }
         },
         
         // Path to images
@@ -71,7 +70,7 @@ cp.animate = {
     }),
 
     // Setup an animation sequence that can be cached
-    cycle: Class.extend({
+    cycle: Asset.extend({
         // Takes information relevant to the particular animation and an object
         // to quickly set various parameters
         init: function(sheet, interval, frames, repeat) {
@@ -131,6 +130,10 @@ cp.animate = {
         
         // Crops and returns a full image
         crop: function(obj) {
+            // Verify the sheet is ready
+            if (this.sheet.map === undefined)
+                return;
+            
             // dump image x and y data fur current frame
             var img = this.get();
             
@@ -161,9 +164,7 @@ cp.animate = {
             );
             
             cp.ctx.globalAlpha = 1;
-            
-            
-            
+                        
             // Ends flip if set
             this.flipEnd(obj);
             
