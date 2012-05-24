@@ -149,8 +149,8 @@ cp.input = {
     // Special function relative to the mouse
     move: function(e) {
         cp.input.mouse = {
-            x: e.pageX,
-            y: e.pageY
+            x: e.offsetX,
+            y: e.offsetY
         }
     },
     
