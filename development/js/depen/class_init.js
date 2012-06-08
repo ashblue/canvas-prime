@@ -3,6 +3,8 @@
  * MIT Licensed.
 */
 // Inspired by base2 and Prototype
+
+// Base for entitites
 (function(){
     var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
     // The base Class implementation (does nothing)
@@ -58,6 +60,7 @@
     };
 })();
 
+// Base for assets (automatically fires init)
 (function(){
     var initializing = false, fnTest = /xyz/.test(function(){xyz;}) ? /\b_super\b/ : /.*/;
     // The base Class implementation (does nothing)

@@ -15,8 +15,10 @@ cp.load = {
         // Begin loading files
         this.getFiles();
         
-        // Begin loading images (should fire draw when image files are added to total)
+        // Begin loading images (should fire draw when image files are added to total
         this.getImgs();
+        
+        this.getAudio();
     },
 
     // Logic for drawing and displaying loading screen
@@ -127,6 +129,7 @@ cp.load = {
         this.htmlHead[0].appendChild(script);
     },
     
+    // Pre-load images files
     loadXmlHttp: new XMLHttpRequest(),
     imgUrl: 'images/',
     getImgs: function() {
@@ -138,7 +141,7 @@ cp.load = {
         
         // When request is complete
         this.loadXmlHttp.onreadystatechange = function() {
-            if (self.loadXmlHttp.readyState==4 && self.loadXmlHttp.status==200) {
+            if (self.loadXmlHttp.readyState === 4 && self.loadXmlHttp.status === 200) {
                 // Prep data
                 var images = JSON.parse(self.loadXmlHttp.responseText);        
                 
@@ -161,5 +164,26 @@ cp.load = {
                 }
             }
         }
+    },
+    
+    // Pre-load audio files
+    getAudio: function() {
+        var self = this;
+        
+        // Prep XML http request
+        var loadXmlHttp = new XMLHttpRequest();
+        loadXmlHttp.open('GET', 'include/sound.php', true);
+        loadXmlHttp.send();
+        
+        // Request complete logic
+        loadXmlHttp.onreadystatechange = function() {
+            if (loadXmlHttp.readyState === 4 && loadXmlHttp.status === 200) {
+                // Unstringify data
+                var sounds = JSON.parse(loadXmlHttp.responseText);
+                console.log(sounds);
+                
+                // Need to figure out how to nerf the item duplicates
+            }
+        };
     }
 };
