@@ -11,7 +11,10 @@ there is no workaround for this other than prioritizing sounds.
 var cp = cp || {};
 
 cp.audio = {
-    url: 'assets/audio', // Url to access audio elements
+    init: function() {
+        this.detect();
+    },
+    url: 'audio/', // Url to access audio elements
     
     // Searches for audio file support and sets it as necessary
     // Source: http://diveintohtml5.com/everything.html

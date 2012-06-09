@@ -180,9 +180,18 @@ cp.load = {
             if (loadXmlHttp.readyState === 4 && loadXmlHttp.status === 200) {
                 // Unstringify data
                 var sounds = JSON.parse(loadXmlHttp.responseText);
-                console.log(sounds);
                 
-                // Need to figure out how to nerf the item duplicates
+                self.total += sounds.length;
+                
+                // Loop through all items
+                for ( var s = sounds.length; s--; ) {
+                    // Create sound file from proper location
+                    var sound = new Audio(cp.audio.url + sounds[s] + cp.audio.type);
+                    
+                    sound.addEventListener('canplaythrough', function() {
+                        self.count++;
+                    });
+                }
             }
         };
     }
