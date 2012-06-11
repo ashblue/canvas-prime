@@ -33,6 +33,7 @@ cp.load = {
         if (this.count == this.total) {
             // turn off the animation and run the game
             this.active = false;
+            this.callback(); // Set in cp.core.init
         }
     },
     
@@ -162,7 +163,7 @@ cp.load = {
                         }
                     })(i);
                 }
-            }
+         ï¿½  }
         }
     },
     
