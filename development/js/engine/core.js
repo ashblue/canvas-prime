@@ -108,7 +108,7 @@ cp.core = {
         if (! cp.load.active) {
             // Loop through every object in storage via reverse loop for maximum performance.
             // Drawing in reverse also makes newly drawn items drawn on top instead of underneath everything
-            for (var obj = this.storage.length; obj--;) {
+            for (var obj = 0; obj < this.storage.length; obj++) {
                 
                 // Run update functions before drawing anything to prevent screen pops for recently spawned items
                 cp.debug.recordStart('update');
