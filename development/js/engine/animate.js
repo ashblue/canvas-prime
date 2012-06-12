@@ -27,7 +27,6 @@ cp.animate = {
             // Get image and create it
             this.img = new Image();
             this.img.src = this.url;
-
             this.img.onload = function() {
                 self.width = self.img.width;
                 self.height = self.img.height;
@@ -88,6 +87,8 @@ cp.animate = {
             
             // Optional JSON object to set extra parameters such as repeat, offset, ect.
             this.repeat = repeat;
+            
+            //this.current = this.frames[0];
         },
         
         // Infinitely loop animation
@@ -130,10 +131,6 @@ cp.animate = {
         
         // Crops and returns a full image
         crop: function(obj) {
-            // Verify the sheet is ready
-            if (this.sheet.map === undefined)
-                return;
-            
             // dump image x and y data fur current frame
             var img = this.get();
             
@@ -151,17 +148,19 @@ cp.animate = {
             this.flipStart(obj);
             
             // Draw the image
-            cp.ctx.drawImage(
-                this.sheet.img, // img
-                img.x, // crop x location
-                img.y, // crop y location
-                this.sheet.frameW, // width of crop window
-                this.sheet.frameH, // height of crop window
-                this.canvasX, // canvas x location
-                this.canvasY,// canvas y location
-                this.sheet.frameW, // canvas width
-                this.sheet.frameH // canvas height
-            );
+            if (img !== undefined) {
+                cp.ctx.drawImage(
+                    this.sheet.img, // img
+                    img.x, // crop x location
+                    img.y, // crop y location
+                    this.sheet.frameW, // width of crop window
+                    this.sheet.frameH, // height of crop window
+                    this.canvasX, // canvas x location
+                    this.canvasY,// canvas y location
+                    this.sheet.frameW, // canvas width
+                    this.sheet.frameH // canvas height
+                );
+            }
             
             cp.ctx.globalAlpha = 1;
                         

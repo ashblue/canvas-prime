@@ -163,7 +163,7 @@ cp.load = {
                         }
                     })(i);
                 }
-         �  }
+            }
         }
     },
     
@@ -185,13 +185,14 @@ cp.load = {
                 self.total += sounds.length;
                 
                 // Loop through all items
-                for ( var s = sounds.length; s--; ) {
+                for ( var s = sounds.length; s--; ) {                    
                     // Create sound file from proper location
                     var sound = new Audio(cp.audio.url + sounds[s] + cp.audio.type);
                     
-                    sound.addEventListener('canplaythrough', function() {
+                    // returning a function forces the load into another scope
+                    sound.addEventListener('canplaythrough', (function(val) {
                         self.count++;
-                    });
+                    })(s));
                 }
             }
         };
