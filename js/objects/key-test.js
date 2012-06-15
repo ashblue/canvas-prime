@@ -1,14 +1,31 @@
-var KeyTest = Entity.extend({
+cp.template.KeyTest = cp.template.Entity.extend({
+    init: function() {
+        cp.input.bind('arrowUp', 'jump');
+        cp.input.bind('arrowLeft', 'left');
+    },
     update: function() {
-        //console.log('Key push:' + ' ' + Input.key.push);
-        //if (Input.key.push == Key.input.space) {
-        //    console.log('test');
-        //}
-        //console.log(Input.key.push);
-        if (Key.push('space')) {
-            console.log('did it');
+        if (cp.input.down('jump')) {
+            console.log('jump: down');
         }
         
-        //console.log('Key held:' + ' ' + Input.key.down);
+        if (cp.input.down('left')) {
+            console.log('left: down');
+        }
+        
+        if (cp.input.up('jump')) {
+            console.log('jump: up');
+        }
+        
+        if (cp.input.up('left')) {
+            console.log('left: up');
+        }
+        
+        if (cp.input.press('jump')) {
+            console.log('jump: press');
+        }
+        
+        if (cp.input.press('left')) {
+            console.log('left: press');
+        }
     }
 });

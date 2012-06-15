@@ -1,4 +1,4 @@
-var Square = Entity.extend({
+cp.template.Square = cp.template.Entity.extend({
     type: 'a',
     xAdd: 5,
     yAdd: 5,
@@ -6,9 +6,9 @@ var Square = Entity.extend({
     height: 40,
     color: '#000',
     update: function() {
-        if (this.x + this.width > Game.width) { this.x = Game.width - this.width; this.xAdd = this.xAdd * -1; }
+        if (this.x + this.width > cp.core.width) { this.x = cp.core.width - this.width; this.xAdd = this.xAdd * -1; }
         else if (this.x < 0) { this.x = 0; this.xAdd = this.xAdd * -1; }
-        if (this.y + this.height > Game.height) { this.y = Game.height - this.height; this.yAdd = Game.random(5) * -1; }
+        if (this.y + this.height > cp.core.height) { this.y = cp.core.height - this.height; this.yAdd = cp.math.random(5) * -1; }
         else if (this.y < 0) { this.y = 0; this.yAdd = this.yAdd * -1; }
         
         this.x += this.xAdd;
@@ -19,7 +19,7 @@ var Square = Entity.extend({
         this.yAdd = this.yAdd * -1;
     },
     draw: function() {
-        Game.ctx.fillStyle = this.color;
-        Game.ctx.fillRect(this.x,this.y,this.width,this.height);
+        cp.ctx.fillStyle = this.color;
+        cp.ctx.fillRect(this.x,this.y,this.width,this.height);
     }
 });

@@ -1,20 +1,15 @@
 /*------------
 Running The Game 
 -----------*/
-// You can tweak your engine through the init hook and add your own custom utilities here
-var MyEngine = Engine.extend({
-    width: 400,
-    height: 400,
-    // Make sure to load objects dependant on another AFTER their parent object has been loaded
-    objects: [
-        'anim-test',
-        'key-test',
-        'get-test',
-        'square',
-        'square-evil'
-    ]
+console.log(cp);
+
+// List of scripts to load from js/objects
+//cp.load.objects = ['square', 'square-evil', 'key-test'];
+cp.load.objects = ['anim-test', 'image'];
+cp.debug.active = true;
+
+// init(width, height, run onLoad function)
+cp.core.init(500, 500, function() {
+    cp.game.spawn('AnimTest');
+    cp.game.spawn('Image');
 });
-  
-// Create and activate your personal engine
-var Game = new MyEngine(); // Your variable name must be Game
-Game.setup();
