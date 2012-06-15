@@ -11,9 +11,10 @@ there is no workaround for this other than prioritizing sounds.
 var cp = cp || {};
 
 cp.audio = {
-    url: 'audio/', // Url to access audio elements
-    storage: [], // Keeps track of all audio elements
+
     init: function() {
+        this.url = 'audio/'; // Url to access audio elements
+        this.storage = []; // Keeps track of all audio elements
         this.detect();
     },
     
@@ -50,35 +51,74 @@ cp.audio = {
     }),
     
     // Handeling of game's music
-    music: {
-        random: false, // Randomly play a track when next is called
-        loop: false, // When the last track is finished playing, immediately start up the first track
-        repeat: false, // Replay the current track if it ends instead of advancing to the next
-        count: 0, // Currently played audio track index
-        
-        // playlist - an array of track names to load into the player
-        init: function(playlist) {
+    music: {       
+        /* playlist - an array of track names to load into the player
+         * settings - JSON object that overrides defaults
+         * - loop (bool): Restart the playlist after playing all tracks
+         * - repeat (bool): Replay the same track after ending
+         * - autoplay (bool); Automatically plays the next track
+        */
+        init: function(playlist, settings) {
+            var self = this;
+            
+            this.loop = this.repeat = false;
+            this.autoplay = true;
+            this.count = 0; // Inital track start location and delay between tracks
+            this.setDelay(2);
+            
+            // Override settings
+            if (typeof settings === 'object') {
+                cp.core.quickSet(settings, this);
+            }
+            
             // Return an error if the playlist is not an array
-            if (typeof playlist !== array) {
-                console.error('Playlist passed to cp.audio.music was not an array and equal to ' + playlist);
-                return;
+            // Note: Current mode of detection is not bullet proof
+            if (!(playlist instanceof Array)) {
+                return console.error('Playlist passed to cp.audio.music must be an array');
             } else {
                 // Cache the playlist
                 this.playlist = playlist;
             }
             
             // Load the first track
-            this.el = new Audio(cp.audio.url + this.playlist[0] + cp.audio.type);
+            this.setTrack();
             
             // Attach the event to play the next track
+            this.el.addEventListener('ended', function() {
+                if (self.autoplay === false) return;
+                
+                var callback = function() {
+                    if (self.repeat) {
+                        self.play();
+                    } else {
+                        self.next();
+                    }
+                };
+
+                window.setTimeout(callback, self.delay);
+            });
+        },
+        
+        setDelay: function(seconds) {
+            this.delay = cp.math.convert(seconds, 1000, 0, true);         
+        },
+        
+        setTrack: function() {
+            if (this.el) {
+                this.el.src = cp.audio.url + this.playlist[this.count] + cp.audio.type;
+                
+            // Create audio track for the first time
+            } else {
+                this.el = new Audio(cp.audio.url + this.playlist[this.count] + cp.audio.type);
+            }
         },
         
         // Return the name of the current track
-        trackName: function() {
+        getTrack: function() {
             var src = this.el.src;
             
             // Strip off the file type
-            src.replace(cp.audio.type, '');
+            src = src.replace(cp.audio.type, '');
             
             // Return just the name and nothing else of the url
             var explode = src.split('/');
@@ -87,13 +127,43 @@ cp.audio = {
         
         // Fade effect
         /*
-         begin (int) = 0 to 1 volume lv
          end (int) = 0 to 1 volume lv
          duration (int) = Time in seconds for the fade to span over ex. 1.25
-         stop (bool) = Whether or not to stop the track after the fade, defaults to false
+         stop (function) = Extra logic to execute upon completion
         */
-        fade: function(begin, end, duration, stop) {
+        fade: function(volumeEnd, duration, stop) {
+            var self = this;
             
+            var volumeStart = this.el.volume;
+            var volumeDifference = (volumeEnd - volumeStart).toFixed(1);
+            
+            var timer = new cp.timer(duration);
+            
+            var callback = function() {
+                if (!timer.expire()) {
+                    // Find the percentage of the time passed
+                    var timePast = (timer.past() / duration).toFixed(2);
+                    
+                    // Multiply time passed by the difference to get a volume
+                    var volume = Math.round(((volumeDifference * timePast) + volumeStart) * 1000) / 1000;
+                    
+                    if (volume < 0)
+                        self.el.volume = 0;
+                    else if (volume > 1)
+                        self.el.volume = 1;
+                    else
+                        self.el.volume = volume;
+                } else {
+                    self.el.volume = volumeEnd;
+                    
+                    if (stop !== undefined)
+                        stop();
+                        
+                    clearInterval(this.fading);
+                }
+            }
+            
+            this.fading = window.setInterval(callback, 20);
         },
         
         /* Controls */
@@ -106,8 +176,19 @@ cp.audio = {
             // Otherwise load and play the new index
             } else {
                 this.count = index;
-                this.el.src = cp.audio.url + this.playlist[index] + cp.audio.type;
+                this.setTrack();
+                this.el.play();
             }
+        },
+        
+        playRandom: function() {
+            var index = cp.math.random(this.playlist.length, 0);
+            this.play(index);
+        },
+        
+        restart: function() {
+            this.el.currentTime = 0;
+            this.play();
         },
         
         stop: function() {
@@ -121,21 +202,39 @@ cp.audio = {
         
         // Play next track
         next: function() {
-            // Verify the next counter doesn't exceed the array length
+             this.count++;
             
-            // If so bump it up
+            // Verify the next counter doesn't exceed the array length
+            if (this.count >= this.playlist.length) {
+                if (this.loop) {
+                    this.count = 0;
+                // Exit early nothing to play
+                } else {
+                    return;
+                }
+            }
             
             // Load up the new src and play
+            this.stop();
             this.play(this.count);
         },
         
         // Play previous track
         previous: function() {
+            this.count--;
+            
             // Verify the prev counter doesn't exceed the array length
-            
-            // If so bump it up
-            
+            if (this.count < 0) {
+                if (this.loop) {
+                    this.count = this.playlist.length - 1;
+                // Exit early, nothing to play
+                } else {
+                    return;
+                }
+            }
+                        
             // Load up the new src and play
+            this.stop();
             this.play(this.count);
         },
         
@@ -144,10 +243,15 @@ cp.audio = {
             this.el.volume = num;
         },
         
-        // Add a new track to the array
+        // Add a new track to the end of the playlist
         // add (string) = Name of the file without the file type
         add: function(name) {
             this.playlist.push(name);
+        },
+        
+        // Removes a track by array index
+        remove: function(index) {
+            this.playlist.splice(index, 1);
         }
     }
 };
