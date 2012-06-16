@@ -16,11 +16,11 @@
     <!-- Temporarliy added for demo purposes, remove later -->
     <aside id="debug">
         <nav id="debug-nav">
-            <a class="active nav-item" href="#" data-id="debug-stats">Stats</a>
-            <a class="nav-item" href="#" data-id="debug-graph">Graphs</a>
+            <a class="nav-item" href="#" data-id="debug-stats">Stats</a>
+            <a class="nav-item active" href="#" data-id="debug-graph">Graphs</a>
         </nav>
         
-        <div id="debug-stats" class="debug-container active">
+        <div id="debug-stats" class="debug-container">
             <span class="info">
                 <p class="info-text">
                     These are detailed instructions on how the stats section works.
@@ -70,8 +70,17 @@
             </ul>
         </div>
         
-        <div id="debug-graph" class="debug-container">
-            <!-- stuff goes here -->
+        <div id="debug-graph" class="debug-container active">
+            <div class="graph">
+                <h3 class="graph-title">FPS <span class="graph-range">(10 - 52)</span></h3>
+                <div class="graph-data">
+                    <span class="graph-line" height="30%"></span>
+                    <span class="graph-line" height="60%"></span>
+                    <span class="graph-line" height="100%"></span>
+                    <span class="graph-line" height="0"></span>
+                </div>
+                
+            </div>
         </div>
     </aside>
     
