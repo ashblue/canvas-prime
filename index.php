@@ -23,7 +23,8 @@
         <div id="debug-stats" class="debug-container">
             <span class="info">
                 <p class="info-text">
-                    These are detailed instructions on how the stats section works.
+                    Stats are generated from a snapshot taken every one second. The formula for output is as follows.<br/><br/>
+                    <strong>Average (Min - Max) measurement</strong>
                 </p>
             </span>
             
@@ -71,15 +72,65 @@
         </div>
         
         <div id="debug-graph" class="debug-container active">
+            <span class="info">
+                <p class="info-text">
+                    Graph data is updated once every second. Only displays the last 20 seconds of capture data.<br/><br/>
+                    <strong>Data Type (total) (Min - Max)</strong>
+                </p>
+            </span>
+            
             <div class="graph">
-                <h3 class="graph-title">FPS <span class="graph-range">(10 - 52)</span></h3>
+                <h3 class="graph-title">FPS 52 <span class="graph-range">(48 - 52)</span></h3>
                 <div class="graph-data">
-                    <span class="graph-line" height="30%"></span>
-                    <span class="graph-line" height="60%"></span>
-                    <span class="graph-line" height="100%"></span>
-                    <span class="graph-line" height="0"></span>
+                    <!-- note lines should output with the graph being 50px -->
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
                 </div>
-                
+            </div>
+            
+<div class="graph">
+                <h3 class="graph-title">FPS 52 <span class="graph-range">(48 - 52)</span></h3>
+                <div class="graph-data">
+                    <!-- note lines should output with the graph being 50px -->
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                    <span class="graph-line" style="height:30px; margin-top: 20px"></span>
+                    <span class="graph-line" style="height:20px; margin-top: 30px"></span>
+                </div>
             </div>
         </div>
     </aside>

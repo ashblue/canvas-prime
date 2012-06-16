@@ -1,3 +1,63 @@
+/* Begin CSS reset */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+
+/* remember to define visible focus styles! 
+:focus {
+	outline: ?????;
+} */
+
+/* remember to highlight inserts somehow! */
+ins {
+	text-decoration: none;
+}
+del {
+	text-decoration: line-through;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+/* CSS reset ends, real code starts */
+
 body {
     background: #aaa;
     margin: 0;
@@ -54,7 +114,7 @@ body {
 
 .debug-container {
     font-size: 12px;
-    padding: 10px 20px 10px 20px;
+    padding: 15px 20px 10px 20px;
     position: relative;
     display: none;
     min-width: 200px;
@@ -77,10 +137,10 @@ body {
     position: absolute;
     top: 7px;
     right: 7px;
-    background: #212121;
-    width: 15px;
-    height: 15px;
+    width: 23px;
+    height: 23px;
     cursor: help;
+    background: url('info.png') no-repeat;
 }
 
 .info:hover .info-text {
@@ -141,4 +201,36 @@ body {
 
 #stat-total {
     color: #e06835;
+}
+
+/* Debug - Graph data */
+.graph {
+    margin-bottom: 10px;
+}
+
+.graph-title {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.graph-range {
+    font-weight: normal;
+    font-size: 11px;
+}
+
+.graph-data {
+    display: block;
+    width: 200px;
+    border: 1px solid #aaa;
+    background: #fff;
+    height: 50px;
+}
+
+.graph-line {
+    display: block;
+    width: 10px;
+    background: #ccc;
+    height: 10px;
+    float: left;
 }
