@@ -19,7 +19,8 @@ var cp = cp || {};
     var debugInfo = [
         {
             title: 'FPS',
-            color: '#0084FF'
+            color: '#0084FF',
+            graph: true
         },
         {
             title: 'Entity',
@@ -48,7 +49,8 @@ var cp = cp || {};
         {
             title: 'Total',
             color: '#E06835',
-            measurement: 'ms'
+            measurement: 'ms',
+            graph: true
         }
     ];
     
@@ -77,13 +79,13 @@ var cp = cp || {};
         };
         
         // Stats nav element
-        var navStats = genEl('a', { id: 'debug-nav', className: 'nav-item active', innerHTML: 'Stats', href: '#' });
+        var navStats = genEl('a', { className: 'nav-item active', innerHTML: 'Stats', href: '#' });
         navStats.dataset.id = 'debug-stats';
         navStats.addEventListener('click', navClick);
         nav.appendChild(navStats);
         
         // Graph nav element
-        var navGraph = genEl('a', { id: 'debug-graph', className: 'nav-item', innerHTML: 'Graphs', href: '#' });
+        var navGraph = genEl('a', { className: 'nav-item', innerHTML: 'Graphs', href: '#' });
         navGraph.dataset.id = 'debug-graph';
         navGraph.addEventListener('click', navClick);
         nav.appendChild(navGraph);
@@ -103,11 +105,23 @@ var cp = cp || {};
         stats.appendChild(statsList);
         genStats(statsList);
         
+        // Create graph section
+        var graph = genEl('div', { id: 'debug-graph', className: 'debug-container' });
+        el.appendChild(graph);
+        
+        var graphInfo = genEl('span', { className: 'info' });
+        graph.appendChild(graphInfo);
+        
+        var graphText = genEl('p', { className: 'info-text', innerHTML: 'Graph data is updated once every second. Only displays the last 20 seconds of capture data. <strong>Data Type (total) (Min - Max)</strong>' });
+        graphInfo.appendChild(graphText);
+        
+        genGraph(graph);
+        
         document.body.appendChild(el);
     };
     
     var genStats = function(attachEls) {        
-        for (var stat = 0; stat < debugInfo.length; stat++) {            
+        for (var stat = 0; stat < debugInfo.length; stat++) {
             var el = genEl('li', {
                     id: 'stat-' + debugInfo[stat].title.toLowerCase(),
                     className: 'stat'
@@ -146,6 +160,29 @@ var cp = cp || {};
         }
         
         return el;
+    };
+    
+    var genGraph = function(attachEls) {
+        for (var stat = 0; stat < debugInfo.length; stat++) {
+            // Exit early if no graph
+            if (debugInfo[stat].graph === undefined)
+                continue;
+            
+            if (debugInfo[stat].measurement) {
+                var measurement = debugInfo[stat].measurement;
+            } else {
+                measurement = '';
+            }
+            
+            // Container
+            var el = genEl('div', {
+                id: 'stat-' + debugInfo[stat].title.toLowerCase(),
+                className: 'graph',
+                innerHTML: '<h3 class="graph-title">' + debugInfo[stat].title + ' 0 <span class="graph-range">(0 - 0)</span> ' + measurement + '</h3><div class="graph-data"></div>'
+            });
+            
+            attachEls.appendChild(el);
+        }
     };
     
     cp.debug = {
