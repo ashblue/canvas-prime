@@ -77,6 +77,7 @@ body {
     top: 0;
     bottom: 0;
     margin: auto;
+    z-index: 1;
 }
 
 /* Debug - Nav */
@@ -128,9 +129,10 @@ body {
 #debug {
     position: fixed;
     margin: 10px 0 0 10px;
-    background: #ddd;
+    background: #eee;
     font-family: Arial, Helvetica, sans-serif;
     border: #999 1px solid;
+    z-index: 0;
 }
 
 .info {
@@ -164,7 +166,7 @@ body {
 }
 
 .stat {
-    margin-bottom: 3px;
+    margin-bottom: 5px;
 }
 
 .stat-name {
@@ -182,25 +184,6 @@ body {
 
 .stat-measure {
     opacity: .7;
-}
-
-#stat-fps {
-    color: #0084ff;
-}
-
-#stat-entity {
-    color: #00a220;
-}
-
-#stat-collisions,
-#stat-draw,
-#stat-update,
-#stat-other {
-    color: #a568c4;
-}
-
-#stat-total {
-    color: #e06835;
 }
 
 /* Debug - Graph data */

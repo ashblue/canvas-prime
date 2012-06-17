@@ -14,13 +14,13 @@
     </div>
     
     <!-- Temporarliy added for demo purposes, remove later -->
-    <aside id="debug">
+<!--    <aside id="debug">
         <nav id="debug-nav">
-            <a class="nav-item" href="#" data-id="debug-stats">Stats</a>
-            <a class="nav-item active" href="#" data-id="debug-graph">Graphs</a>
+            <a class="nav-item active" href="#" data-id="debug-stats">Stats</a>
+            <a class="nav-item" href="#" data-id="debug-graph">Graphs</a>
         </nav>
         
-        <div id="debug-stats" class="debug-container">
+        <div id="debug-stats" class="debug-container active">
             <span class="info">
                 <p class="info-text">
                     Stats are generated from a snapshot taken every one second. The formula for output is as follows.<br/><br/>
@@ -71,7 +71,7 @@
             </ul>
         </div>
         
-        <div id="debug-graph" class="debug-container active">
+        <div id="debug-graph" class="debug-container">
             <span class="info">
                 <p class="info-text">
                     Graph data is updated once every second. Only displays the last 20 seconds of capture data.<br/><br/>
@@ -82,7 +82,6 @@
             <div class="graph">
                 <h3 class="graph-title">FPS 52 <span class="graph-range">(48 - 52)</span></h3>
                 <div class="graph-data">
-                    <!-- note lines should output with the graph being 50px -->
                     <span class="graph-line" style="height:30px; margin-top: 20px"></span>
                     <span class="graph-line" style="height:20px; margin-top: 30px"></span>
                     <span class="graph-line" style="height:30px; margin-top: 20px"></span>
@@ -109,7 +108,6 @@
 <div class="graph">
                 <h3 class="graph-title">FPS 52 <span class="graph-range">(48 - 52)</span></h3>
                 <div class="graph-data">
-                    <!-- note lines should output with the graph being 50px -->
                     <span class="graph-line" style="height:30px; margin-top: 20px"></span>
                     <span class="graph-line" style="height:20px; margin-top: 30px"></span>
                     <span class="graph-line" style="height:30px; margin-top: 20px"></span>
@@ -133,7 +131,7 @@
                 </div>
             </div>
         </div>
-    </aside>
+    </aside>-->
     
     <!-- Load dependencies -->
     <script type="text/javascript" src="js/depen/animation.js"></script>
