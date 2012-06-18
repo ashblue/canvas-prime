@@ -24,6 +24,9 @@ cp.animate = {
             // Create url string
             this.url = this.path + file;
             
+            // Force reset map to prevent prototypical inheritance bug of appending maps
+            this.map = [];
+            
             // Get image and create it
             this.img = new Image();
             this.img.src = this.url;
@@ -49,10 +52,10 @@ cp.animate = {
         // Slices horizontally first, then startes on a new line, just like a typewriter
         slice: function() {
             // count horizontal spaces
-            var countHorizontal = (this.width / this.frameW).toFixed();
+            var countHorizontal = Math.round(this.width / this.frameW);
             
             // count vertical spaces
-            var countVertical = (this.height / this.frameH).toFixed();
+            var countVertical = Math.round(this.height / this.frameH);
             
             // for each vertical space
             for ( var height = 0; height < countVertical; height++ ) {
