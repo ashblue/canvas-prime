@@ -14,7 +14,11 @@ var cp = cp || {};
     var _records = {
         fps: {
             title: 'FPS',
-            color: '#0084FF'
+            color: '#0084FF',
+            graph: true,
+            min: 100,
+            max: 0,
+            result: 0
         },
         entity: {
             title: 'Entity#',
@@ -23,27 +27,35 @@ var cp = cp || {};
         draw: {
             title: 'Draw',
             color: '#A568C4',
-            measurement: 'ms'
+            measurement: 'ms',
+            total: 0
         },
         update: {
             title: 'Update',
             color: '#A568C4',
-            measurement: 'ms'
+            measurement: 'ms',
+            total: 0
         },
         collisions: {
             title: 'Collisions',
             color: '#A568C4',
-            measurement: 'ms'
+            measurement: 'ms',
+            total: 0
         },
         other: {
             title: 'Other',
             color: '#A568C4',
-            measurement: 'ms'
+            measurement: 'ms',
+            total: 0
         },
         total: {
             title: 'Total',
             color: '#E06835',
-            measurement: 'ms'
+            measurement: 'ms',
+            graph: true,
+            min: 100,
+            max: 0,
+            total: 0
         }
     };
     
@@ -77,12 +89,14 @@ var cp = cp || {};
         
         _genStats(statsList);
         
+        document.body.appendChild(el);
+        
         // Generate Graph
         var graph = _genEl('div', { id: 'debug-graph', className: 'debug-container' });
         graph.addEventListener('click', sectionClick);
         el.appendChild(graph);
         
-        document.body.appendChild(el);
+        _generateGraphs(graph);
     };
     
     var _genEl = function(create, data) {
@@ -117,6 +131,10 @@ var cp = cp || {};
             var total = _genEl('span', { className: 'stat-total', innerHTML: '0' });
             el.appendChild(total);
             
+            if (_records[name].measurement !== undefined)
+                el.appendChild(_genEl('small', {
+                    innerHTML: _records[name].measurement }));
+            
                         
             // Cache DOM info for quick access later
             _records[name].dom = total;
@@ -125,10 +143,38 @@ var cp = cp || {};
         }
     };
     
+    var _generateGraphs = function(attachEls) {
+        for (var name in _records) {
+            // Exit early if no graph
+            if (_records[name].graph !== true)
+                continue;
+            
+            if (_records[name].measurement) {
+                var measurement = _records[name].measurement;
+            } else {
+                var measurement = '';
+            }
+            
+            // Container
+            var el = _genEl('div', {
+                className: 'graph',
+                innerHTML: '<h3 style="color: ' + _records[name].color + '" class="graph-title">' + _records[name].title + ' <span id="value-' + name + '">0</span> <span class="graph-range">(<span id="min-' + name + '">0</span> - <span id="max-' + name + '">0</span>)</span> <small>' + measurement + '</small></h3><div id="graph-' + name + '" class="graph-data"></div>'
+            });
+            
+            attachEls.appendChild(el);
+            
+            // Save DOM data for easy access later
+            _records[name].domGraph = {
+                value: document.getElementById('value-' + name),
+                min: document.getElementById('min-' + name),
+                max: document.getElementById('max-' + name),
+                graph: document.getElementById('graph-' + name)
+            };
+        }
+    };
+    
     cp.debug = {
         active: false,
-        // Millisecond starting value for Date.now()
-        base: Date.now(),
         // Total time passed
         past: 0,
         
@@ -140,6 +186,8 @@ var cp = cp || {};
                 };
             } else {
                 _generateHTML();
+                // Millisecond starting value for Date.now()
+                this.base = Date.now();
             }
         },
         
@@ -185,8 +233,7 @@ var cp = cp || {};
             _records[name].end = Date.now();
             
             // Increment the difference between recordings
-            if (_records[name].start !== undefined)
-                _records[name].total += _records[name].end - _records[name].start;
+            _records[name].total += _records[name].end - _records[name].start;
         },
         
         // Creates all of the debug data from the gathered records
@@ -195,8 +242,7 @@ var cp = cp || {};
             for (var name in _records) {
                 // Process time information if necessary
                 if (typeof _records[name].total === 'number') {
-                    // Convert the total time to seconds
-                    var time = cp.math.convert(_records[name].total, 1000, 2);
+                    var time = _records[name].total;
                     
                     _records[name].result = time;
                     
@@ -204,18 +250,48 @@ var cp = cp || {};
                     _records[name].total = 0;
                 }
                 
-                // Output other
+                // Output other data
                 if (name === 'total') {
-                    var otherTotal = Math.abs(_records['draw'].result + _records['update'].result + _records['collisions'].result - _records['total'].result);
-                    _records['other'].dom.innerHTML = otherTotal + ' <small>' + _records['other'].measurement + '</small>';
+                    var otherTotal = _records['total'].result - _records['draw'].result + _records['update'].result + _records['collisions'].result;
+                    _records['other'].dom.innerHTML = otherTotal;
                 }
                 
                 // Inject value
                 _records[name].dom.innerHTML = _records[name].result;
-                
-                // Append measurement
-                if (_records[name].measurement !== undefined)
-                    _records[name].dom.innerHTML += ' <small>' + _records[name].measurement + '</small>';
+                    
+                // Append graph data if present
+                // TODO: Delete overflowing graph items
+                if (_records[name].domGraph !== undefined) {
+                    // Set total value
+                    _records[name].domGraph.value.innerHTML = _records[name].result;
+                    
+                    // Set max
+                    if (_records[name].result > _records[name].max) {
+                        _records[name].max = _records[name].domGraph.max.innerHTML = _records[name].result;
+                    }
+                    
+                    // Set min
+                    if (_records[name].result < _records[name].min) {
+                        _records[name].min = _records[name].domGraph.min.innerHTML = _records[name].result;
+                    }
+                    
+                    // Delete excess graph data
+                    if (_records[name].domGraph.graph.childNodes.length >= 75) {
+                        _records[name].domGraph.graph.removeChild(_records[name].domGraph.graph.firstChild);
+                    }
+                    
+                    // Append data to graph
+                    var graphLine = _genEl('span', {
+                        className: 'graph-line'
+                    });
+                    graphLine.style.backgroundColor = _records[name].color;
+
+                    var height = Math.round(_records[name].result / 2);
+                    graphLine.style.height = height + 'px';
+                    graphLine.style.marginTop = 50 - height + 'px';
+
+                    _records[name].domGraph.graph.appendChild(graphLine);
+                }
             }
         }
     };

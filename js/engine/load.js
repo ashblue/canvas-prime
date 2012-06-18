@@ -34,6 +34,8 @@ cp.load = {
             // turn off the animation and run the game
             this.active = false;
             this.callback(); // Set in cp.core.init
+            // Check to see if debugging is active
+            cp.debug.init();
         }
     },
     

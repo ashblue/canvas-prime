@@ -205,7 +205,7 @@ body {
 
 .graph-data {
     display: block;
-    width: 200px;
+    width: 150px;
     border: 1px solid #aaa;
     background: #fff;
     height: 50px;
@@ -213,7 +213,7 @@ body {
 
 .graph-line {
     display: block;
-    width: 10px;
+    width: 2px;
     background: #ccc;
     height: 10px;
     float: left;
@@ -221,4 +221,5 @@ body {
 
 small {
     font-size: 10px;
+    font-weight: normal;
 }
