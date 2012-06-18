@@ -118,7 +118,8 @@ body {
     padding: 15px 20px 10px 20px;
     position: relative;
     display: none;
-    min-width: 200px;
+    min-width: 150px;
+    cursor: pointer;
 }
 
 .debug-container.active {
@@ -216,4 +217,8 @@ body {
     background: #ccc;
     height: 10px;
     float: left;
+}
+
+small {
+    font-size: 10px;
 }

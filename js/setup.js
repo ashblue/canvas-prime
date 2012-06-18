@@ -7,6 +7,7 @@ console.log(cp);
 //cp.load.objects = ['square', 'square-evil', 'key-test'];
 cp.load.objects = ['anim-test', 'image', 'sound-test'];
 cp.debug.active = true;
+cp.debug.showCollisions = true;
 
 // init(width, height, run onLoad function)
 cp.core.init(500, 500, function() {

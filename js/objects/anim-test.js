@@ -41,11 +41,7 @@ cp.template.AnimTest = cp.template.Entity.extend({
         this.animSet = this.animPop;
     },
     
-    update: function() {
-        // Draws the actual hitbox of the object with a red box
-        cp.ctx.fillStyle = '#f00';
-        cp.ctx.fillRect(this.x, this.y, this.width, this.height);
-        
+    update: function() {        
         // Calls parent function and necessary animation update checks
         this._super();
 

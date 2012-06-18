@@ -5,17 +5,7 @@ Desc: Allows you to display the current fps, total draw time, total update time,
 collision processing time, system lag, total enties, total frame time, and more.
 
 To-Do:
-- Still needs a method to create collision boxes in the draw() sequence
-- Needs to shave off the excess milliseconds when reporting response times
-- Other for unaccounted time (inputs, lag, graveyard, ect)
-- Init should take a string that gets processed for the features from debug
-  that a user wants.
-  
-  
-- Create html for inital setup and creation of the html
-- Create better HTML updating
-- Color injection
-- Fix FPS issue
+- Click debug area to pull up a graph of fps with a range
 */
 
 var cp = cp || {};
@@ -45,8 +35,13 @@ var cp = cp || {};
             color: '#A568C4',
             measurement: 'ms'
         },
+        other: {
+            title: 'Other',
+            color: '#A568C4',
+            measurement: 'ms'
+        },
         total: {
-            title: 'Title',
+            title: 'Total',
             color: '#E06835',
             measurement: 'ms'
         }
@@ -54,15 +49,40 @@ var cp = cp || {};
     
     var _generateHTML = function() {
         // Main body of debug div
-        var el = genEl('aside', { id: 'debug' });
+        var el = _genEl('aside', { id: 'debug' });
+        
+        // Setup click listener for sections
+        var sectionClick = function(e) {
+            // Destroy all active states
+            el.getElementsByClassName('active')[0].classList.remove('active');
+
+            // Add correct active states
+            if (this.nextSibling) {
+                this.nextSibling.classList.add('active');
+            } else {
+                this.previousSibling.classList.add('active');
+            }
+            
+            e.preventDefault();
+        };
         
         // Generate stats
-        var stats = genEl('div', { id: 'debug-stats', className: 'debug-container active' });
+        var stats = _genEl('div', { id: 'debug-stats', className: 'debug-container active' });
+        stats.addEventListener('click', sectionClick);
         el.appendChild(stats);
         
         var statsList = document.createElement('ul');
         statsList.className = 'debug-list';
         stats.appendChild(statsList);
+        
+        _genStats(statsList);
+        
+        // Generate Graph
+        var graph = _genEl('div', { id: 'debug-graph', className: 'debug-container' });
+        graph.addEventListener('click', sectionClick);
+        el.appendChild(graph);
+        
+        document.body.appendChild(el);
     };
     
     var _genEl = function(create, data) {
@@ -81,6 +101,30 @@ var cp = cp || {};
         return el;
     };
     
+    var _genStats = function(attachEls) {        
+        for (var name in _records) {
+            var el = _genEl('li', {
+                id: 'stat-' + _records[name].title.toLowerCase(),
+                className: 'stat'
+            });
+            el.style.color = _records[name].color;
+            
+            // name
+            var title = _genEl('span', { className: 'stat-name', innerHTML: _records[name].title + ': ' });
+            el.appendChild(title);
+                        
+            // total
+            var total = _genEl('span', { className: 'stat-total', innerHTML: '0' });
+            el.appendChild(total);
+            
+                        
+            // Cache DOM info for quick access later
+            _records[name].dom = total;
+
+            attachEls.appendChild(el);
+        }
+    };
+    
     cp.debug = {
         active: false,
         // Millisecond starting value for Date.now()
@@ -94,6 +138,8 @@ var cp = cp || {};
                 this.start = this.end = this.recordStart = this.recordEnd = function() {
                     return;
                 };
+            } else {
+                _generateHTML();
             }
         },
         
@@ -139,20 +185,12 @@ var cp = cp || {};
             _records[name].end = Date.now();
             
             // Increment the difference between recordings
-            _records[name].total += _records[name].end - _records[name].start;
+            if (_records[name].start !== undefined)
+                _records[name].total += _records[name].end - _records[name].start;
         },
         
         // Creates all of the debug data from the gathered records
         gatherResults: function() {
-            // Clear existing list
-            var el = document.getElementById('debug');
-            if (el) el.parentNode.removeChild(el);
-            
-            // Create base for list
-            var el = document.createElement('div');
-            var list = document.createElement('ul');
-            list.id = 'debug';
-            
             // Loop through all records and store their results with a tag
             for (var name in _records) {
                 // Process time information if necessary
@@ -166,13 +204,19 @@ var cp = cp || {};
                     _records[name].total = 0;
                 }
                 
-                var li = document.createElement('li');
-                li.innerHTML = name + ': ' + _records[name].result;
-                list.appendChild(li);
+                // Output other
+                if (name === 'total') {
+                    var otherTotal = Math.abs(_records['draw'].result + _records['update'].result + _records['collisions'].result - _records['total'].result);
+                    _records['other'].dom.innerHTML = otherTotal + ' <small>' + _records['other'].measurement + '</small>';
+                }
+                
+                // Inject value
+                _records[name].dom.innerHTML = _records[name].result;
+                
+                // Append measurement
+                if (_records[name].measurement !== undefined)
+                    _records[name].dom.innerHTML += ' <small>' + _records[name].measurement + '</small>';
             }
-                    
-            // Display the resuls
-            document.body.appendChild(list);
         }
     };
 }(cp, window));
