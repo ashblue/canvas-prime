@@ -10,143 +10,62 @@ To-Do:
 - Other for unaccounted time (inputs, lag, graveyard, ect)
 - Init should take a string that gets processed for the features from debug
   that a user wants.
-- should set all function references for debug tagging to false, to completely nerf them
+  
+  
+- Create html for inital setup and creation of the html
+- Create better HTML updating
+- Color injection
+- Fix FPS issue
 */
 
 var cp = cp || {};
 
 (function(cp, window) {
-    var debugInfo = [
-        {
+    var _records = {
+        fps: {
             title: 'FPS',
-            color: '#0084FF',
-            graph: true
+            color: '#0084FF'
         },
-        {
-            title: 'Entity',
+        entity: {
+            title: 'Entity#',
             color: '#00A220'
         },
-        {
-            title: 'Collisions',
-            color: '#A568C4',
-            measurement: 'ms'
-        },
-        {
+        draw: {
             title: 'Draw',
             color: '#A568C4',
             measurement: 'ms'
         },
-        {
+        update: {
             title: 'Update',
             color: '#A568C4',
             measurement: 'ms'
         },
-        {
-            title: 'Other',
+        collisions: {
+            title: 'Collisions',
             color: '#A568C4',
             measurement: 'ms'
         },
-        {
-            title: 'Total',
+        total: {
+            title: 'Title',
             color: '#E06835',
-            measurement: 'ms',
-            graph: true
+            measurement: 'ms'
         }
-    ];
+    };
     
-    // Initial HTML generation
-    var html = function() {
+    var _generateHTML = function() {
         // Main body of debug div
         var el = genEl('aside', { id: 'debug' });
         
-        // Create nav
-        var nav = genEl('nav', { id: 'debug-nav' });
-        el.appendChild(nav);
-        
-        // Logic for clicking a nav
-        var navClick = function(e) {
-            // Destroy all active states
-            var elDump = el.getElementsByClassName('active');
-            for (var i = elDump.length; i--;) {
-                elDump[i].classList.remove('active');
-            }
-
-            // Add correct active states
-            this.classList.add('active');
-            document.getElementById(this.dataset.id).classList.add('active');
-            
-            e.preventDefault();
-        };
-        
-        // Stats nav element
-        var navStats = genEl('a', { className: 'nav-item active', innerHTML: 'Stats', href: '#' });
-        navStats.dataset.id = 'debug-stats';
-        navStats.addEventListener('click', navClick);
-        nav.appendChild(navStats);
-        
-        // Graph nav element
-        var navGraph = genEl('a', { className: 'nav-item', innerHTML: 'Graphs', href: '#' });
-        navGraph.dataset.id = 'debug-graph';
-        navGraph.addEventListener('click', navClick);
-        nav.appendChild(navGraph);
-        
-        // Create stats section
+        // Generate stats
         var stats = genEl('div', { id: 'debug-stats', className: 'debug-container active' });
         el.appendChild(stats);
-        
-        var statsInfo = genEl('span', { className: 'info' });
-        stats.appendChild(statsInfo);
-        
-        var statsText = genEl('p', { className: 'info-text', innerHTML: 'Stats are generated from a snapshot taken every one second. The formula for output is as follows: Average (Min - Max) measurement.' });
-        statsInfo.appendChild(statsText);
         
         var statsList = document.createElement('ul');
         statsList.className = 'debug-list';
         stats.appendChild(statsList);
-        genStats(statsList);
-        
-        // Create graph section
-        var graph = genEl('div', { id: 'debug-graph', className: 'debug-container' });
-        el.appendChild(graph);
-        
-        var graphInfo = genEl('span', { className: 'info' });
-        graph.appendChild(graphInfo);
-        
-        var graphText = genEl('p', { className: 'info-text', innerHTML: 'Graph data is updated once every second. Only displays the last 20 seconds of capture data. <strong>Data Type (total) (Min - Max)</strong>' });
-        graphInfo.appendChild(graphText);
-        
-        genGraph(graph);
-        
-        document.body.appendChild(el);
     };
     
-    var genStats = function(attachEls) {        
-        for (var stat = 0; stat < debugInfo.length; stat++) {
-            var el = genEl('li', {
-                    id: 'stat-' + debugInfo[stat].title.toLowerCase(),
-                    className: 'stat'
-                });
-            el.style.color = debugInfo[stat].color;
-            
-            // name
-            var name = genEl('span', { className: 'stat-name', innerHTML: debugInfo[stat].title + ': ' });
-            el.appendChild(name);
-            
-            // total
-            var total = genEl('span', { className: 'stat-total', innerHTML: '0' });
-            el.appendChild(total);
-            
-            // range
-            var range = genEl('span', { className: 'stat-range', innerHTML: ' (0 - 0)' });
-            if (debugInfo[stat].measurement !== undefined)
-                range.innerHTML += ' ' + debugInfo[stat].measurement;
-            el.appendChild(range);
-            
-            attachEls.appendChild(el);
-        }
-    };
-    
-    var genEl = function(create, data) {
+    var _genEl = function(create, data) {
         // return if no element is present
         if (typeof create !== 'string')
             return console.error('First paramter must be a string to create an HTML element.');
@@ -162,57 +81,20 @@ var cp = cp || {};
         return el;
     };
     
-    var genGraph = function(attachEls) {
-        for (var stat = 0; stat < debugInfo.length; stat++) {
-            // Exit early if no graph
-            if (debugInfo[stat].graph === undefined)
-                continue;
-            
-            if (debugInfo[stat].measurement) {
-                var measurement = debugInfo[stat].measurement;
-            } else {
-                measurement = '';
-            }
-            
-            // Container
-            var el = genEl('div', {
-                id: 'stat-' + debugInfo[stat].title.toLowerCase(),
-                className: 'graph',
-                innerHTML: '<h3 class="graph-title">' + debugInfo[stat].title + ' 0 <span class="graph-range">(0 - 0)</span> ' + measurement + '</h3><div class="graph-data"></div>'
-            });
-            
-            attachEls.appendChild(el);
-        }
-    };
-    
     cp.debug = {
         active: false,
-        init: function() {
-            // If debugging is not active kill all active functions to prevent unnecessary lag
-            //if (this.active === false) {
-                this.start = this.end = this.recordStart = this.recordEnd = function() {
-                    return;
-                };
-            //}
-            
-            html();
-        },
-        
         // Millisecond starting value for Date.now()
         base: Date.now(),
-        
         // Total time passed
         past: 0,
         
-        // Create a storage container for start and end time
-        records: {},
-        
-        // Storage of all results from processed data
-        results: [],
-        
-        // FPS info storage
-        fps: {
-            count: 0    
+        init: function() {
+            // If debugging is not active kill all active functions to prevent unnecessary lag
+            if (this.active === false) {
+                this.start = this.end = this.recordStart = this.recordEnd = function() {
+                    return;
+                };
+            }
         },
         
         // Creates a light weight time recording loop by calculating differnce
@@ -223,18 +105,20 @@ var cp = cp || {};
             
             // test if 1 second has passed
             if (this.past > 1000) {
+                _records.entity.result = cp.core.storage.length;
+                
                 // Calculate results
-                this.gather();
+                this.gatherResults();
                 
                 // Count another second
                 this.base = Date.now();
                 
                 // Clear fps
-                this.fps.count = 0;
+                _records.fps.result = 0;
             }
             
             // Increment fps since 1 frame has passed
-            this.fps.count++;
+            _records.fps.result++;
             
             this.recordStart('total');
         },
@@ -244,54 +128,22 @@ var cp = cp || {};
         },
         
         // Takes a snapshot of the current item
-        recordStart: function(name) {
-            // Make sure the object exists, or create it.
-            if (this.records[name] === undefined) {
-                this.records[name] = {
-                    id: name
-                }
-            }
-            
+        recordStart: function(name) {            
             // Begin recording
-            this.records[name].start = Date.now();
+            _records[name].start = Date.now();
         },
         
         // Takes a snapshot of the current item and stores the result
         recordEnd: function(name) {
             // End recording
-            this.records[name].end = Date.now();
+            _records[name].end = Date.now();
             
             // Increment the difference between recordings
-            this.records[name].total += this.records[name].end - this.records[name].start;
+            _records[name].total += _records[name].end - _records[name].start;
         },
         
         // Creates all of the debug data from the gathered records
-        gather: function() {
-            // Clear records
-            this.results = [];
-            
-            // Loop through all records and store their results with a tag
-            for (var num in this.records) {
-                // Convert the total time to seconds
-                var time = cp.math.convert(this.records[num].total, 1000, 2);
-                
-                var tag = this.records[num].id;
-                this.results.push({
-                    name: tag,
-                    val: time });
-                
-                // Clear total from records
-                this.records[num].total = 0;
-            }
-                    
-            // Display the resuls
-            this.display();
-        },
-        
-        // Creates a DOM element and injects it onto the user's screen.
-        // This should be fixed up in the near future with some CSS and better DOM targeting
-        // to prevent excessive DOM calls.
-        display: function() {
+        gatherResults: function() {
             // Clear existing list
             var el = document.getElementById('debug');
             if (el) el.parentNode.removeChild(el);
@@ -301,24 +153,25 @@ var cp = cp || {};
             var list = document.createElement('ul');
             list.id = 'debug';
             
-            // Append FPS
-            var li = document.createElement('li');
-            li.innerHTML = 'FPS: ' + this.fps.count;
-            list.appendChild(li);
-            
-            // Append entity count
-            var li = document.createElement('li');
-            li.innerHTML = 'Entity#: ' + cp.core.storage.length;
-            list.appendChild(li);
-            
-            // Loop through the results and attach them to the list
-            for ( obj = this.results.length; obj--; ) {
+            // Loop through all records and store their results with a tag
+            for (var name in _records) {
+                // Process time information if necessary
+                if (typeof _records[name].total === 'number') {
+                    // Convert the total time to seconds
+                    var time = cp.math.convert(_records[name].total, 1000, 2);
+                    
+                    _records[name].result = time;
+                    
+                    // Clear total from records
+                    _records[name].total = 0;
+                }
+                
                 var li = document.createElement('li');
-                li.innerHTML = this.results[obj].name + ': ' + this.results[obj].val + ' ms';
+                li.innerHTML = name + ': ' + _records[name].result;
                 list.appendChild(li);
             }
-            
-            // Inject assembled object
+                    
+            // Display the resuls
             document.body.appendChild(list);
         }
     };
