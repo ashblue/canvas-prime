@@ -18,7 +18,7 @@
     <script type="text/javascript" src="js/depen/class_init.js"></script>
     
     <!-- Load all files in development -->
-    <?php include 'include/files.php'; ?>
+    <?php include 'include/engine-files.php'; ?>
     
     <!-- Execute logic from assembled engine -->
     <script type="text/javascript" src="js/setup.js"></script>

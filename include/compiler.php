@@ -3,6 +3,8 @@
 Name: Engine Output from JS files
 Version: .01
 Desc: Assembles and strips unecessary content to create a straight text output for the engine.
+
+TODO: Fix as its currently broken.
 */
 
 // Retrive all functions

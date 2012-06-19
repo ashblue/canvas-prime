@@ -34,7 +34,6 @@ cp.math = {
             var total = val / base;
         }
         
-        console.log()
         return Math.round(total * Math.pow(10, round)) / Math.pow(10, round);
     }
 };
