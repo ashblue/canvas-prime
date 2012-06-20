@@ -59,7 +59,7 @@ var cp = cp || {};
             },
             
             stop: function() {
-                this.el.stop();
+                this.el.pause();
             }
         }),
         
