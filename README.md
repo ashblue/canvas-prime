@@ -1,3 +1,5 @@
+Please note the below docs are out of date, new ones coming soon!
+
 Setup Guide
 =============
 
