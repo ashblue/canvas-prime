@@ -8,18 +8,27 @@ To be properly rendered by the engine's parse, all files must follow the followi
     Version: 1 (all sheets should start at version 1 for inital release)
     Desc: Your description here.
     */
-    
+
     // Name of the object, makes sure that it gets created properly
     var cp = cp || {};
-    
-    cp.objectName = {
-        exampleExtendableMethod: Class.extend({
-            exampleVar: 'a',
-            exampleFunction: function() {
+
+    (function (cp) {
+        // Private declaration
+        var _name = 'blah',
+        _nameFunction: function() {
+
+        };
+
+        // Main object
+        cp.objectName = {
+            exampleExtendableMethod: Class.extend({
+                exampleVar: 'a',
+                exampleFunction: function() {
+                    // Code here
+                }
+            },
+            nonExtendableMethod: {
                 // Code here
             }
-        },
-        nonExtendableMethod: {
-            // Code here
-        }
-    };
+        };
+    }(cp));

@@ -6,25 +6,23 @@ Desc: Contains basic information for the engine such as initialization, loops, s
 
 var cp = cp || {};
 
-(function (cp, window) {
+(function (cp) {
     // Declare private variables
     var _canvas = document.getElementById('canvas'), // Store Canvas element for later use
     _id = 0, // Id counter for spawning elements
-    _width = 500, // Width and height of the Canvas
-    _height = 500,
 
     // Declare private functions
     // Sets the screens width and height, method can be accessed at any time
     _screen =  function (width, height) {
         // Check for a passed width and height
         if (typeof width === 'number' && typeof height === 'number') {
-            _width = width;
-            _height = height;
+            cp.core.canvasWidth = width;
+            cp.core.canvasHeight = height;
         }
 
         // Create the proper screen size
-        _canvas.width = _width;
-        _canvas.height = _height;
+        _canvas.width = cp.core.canvasWidth;
+        _canvas.height = cp.core.canvasHeight;
     },
 
     // Begin animation
@@ -83,6 +81,8 @@ var cp = cp || {};
         storage: [], // Storage for all
         typeA: [], // Friendly storage
         typeB: [], // Enemy storage
+        canvasWidth: 500,
+        canvasHeight: 500,
 
         // Runs a series of methods to get the game up and running
         init: function (width, height, run) {
@@ -198,4 +198,4 @@ var cp = cp || {};
             }
         }
     };
-}(cp, window));
+}(cp));

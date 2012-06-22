@@ -6,166 +6,82 @@ Desc: Controls all file loading mechanisms and draws the loading screen while wa
 
 var cp = cp || {};
 
-cp.load = {
-    active: true,
-    count: 0,
-    total: -1,
+(function (cp) {
+    var _loopHold, // temporary dump location to hold the cp.core.loop while its temporarily replaced to show the load screen
+    _loadProgress, // Shows the current load progress text
+    _loadPercent, // Total percent of loaded assets
 
-    init: function() {
-        // Begin loading files
-        this.getFiles();
-
-        // Begin loading images (should fire draw when image files are added to total
-        this.getImgs();
-
-        this.getAudio();
-
-        // temporarily replace loop
-        this.loopHold = cp.core.loop;
-        cp.core.loop = this.loop;
-    },
-
-    // Logic for drawing and displaying loading screen
-    // Must refer to cp.load to prevent reference errors since scope changes to cp.core temporarily
-    loop: function() {
-        // Create loading numbers string
-        cp.load.progress = cp.load.count + ' / ' + cp.load.total;
-
-        // Create loading bar information
-        cp.load.progressPercent = (cp.load.count / cp.load.total).toFixed(2);
-
-        // Count loaded objects
-        if (cp.load.count == cp.load.total) {
-            // turn off the animation and run the game
-            cp.load.callback();
-
-            // Check to see if debugging is active
-            cp.debug.init();
-
-            // Repair original loop
-            cp.core.loop = cp.load.loopHold;
-        }
-
-        if (cp.load.loadXmlHttp.readyState==4 && cp.load.loadXmlHttp.status==200) {
-            // Sent font basics
-            //cp.ctx.font = 'italic 400 12px/2 arial, sans-serif';
-
-            // Background
-            cp.ctx.fillStyle = '#000';
-            cp.ctx.fillRect(0, 0, cp.core.width, cp.core.height);
-
-            // Loading text
-            cp.ctx.fillStyle = '#fff';
-            cp.ctx.font = '40px arial';
-            cp.ctx.textAlign = 'center';
-            cp.ctx.fillText('Loading...', cp.core.width / 2, cp.core.height / 2 - 50);
-
-            // Asset count text
-            cp.ctx.font = '20px arial';
-            cp.ctx.fillText(cp.load.progress, cp.core.width / 2, cp.core.height / 2 + 50);
-
-            // Start loading bar background
-            var offset = 100,
-            barX = offset / 2, // Note: might break due to self reference
-            barY = cp.core.height / 2 - 20,
-            barWidth = cp.core.width - offset,
-            barHeight = 40;
-
-            cp.ctx.fillStyle = '#fff';
-            cp.ctx.fillRect(barX, barY, barWidth, barHeight);
-
-            // Loading bar overlay (progress bar)
-            offset = 5;
-            barX = barX + offset;
-            barY = barY + offset;
-            barWidth = (barWidth - (offset * 2)) * cp.load.progressPercent;
-            barHeight = barHeight - (offset * 2);
-
-            cp.ctx.fillStyle = '#00aaff';
-            cp.ctx.fillRect(barX, barY, barWidth, barHeight);
-        }
-    },
-
-    // Setup and information for loading file assets
-    htmlHead: document.getElementsByTagName('HEAD'),
-    fileUrl: 'js/objects/',
-    fileCount: 0,
-    fileTotal: 0,
-
-    getFiles: function() {
+    _htmlHead = document.getElementsByTagName('HEAD'),
+    _fileCount = 0,
+    _fileTotal = 0,
+    _getFiles = function() {
         // Double check var objects is present with an array of file names to
         // load, or perform an emergency exit.
-        if (typeof this.objects !== 'object') {
-            console.log('Failure to load. No elements have been loaded into the engine. Please include an array of objects in cp.load.objects([\'example1\', \'example2\']) with corresponding files in js/objects');
+        if (typeof cp.load.loadFiles !== 'object') {
+            console.error('Failure to load. No elements have been loaded into the engine. Please include an array of objects in cp.load.objects([\'example1\', \'example2\']) with corresponding files in js/objects');
             return false;
         }
 
         // Update total asset count
-        this.total = this.objects.length;
+        cp.load.assetTotal = cp.load.loadFiles.length;
 
         // Store the total number of objects to loop through
-        this.fileTotal = this.objects.length;
+        _fileTotal = cp.load.loadFiles.length;
 
         // Create all files
-        this.fileCreate();
+        _fileCreate();
     },
-
-    fileCreate: function() {
-        var self = this;
-
+    _fileCreate = function() {
         // Setup script
         var script = document.createElement('script');
         script.type = 'text/javascript';
-        script.src = this.fileUrl + this.objects[this.fileCount] + '.js';
+        script.src = cp.load.fileUrl + cp.load.loadFiles[_fileCount] + '.js';
 
         // Declare onload rules
         script.onload = function() {
             // Increment counters here since the previous object is fully loaded
-            self.fileCount++;
-            self.count++;
+            _fileCount += 1;
+            cp.load.assetCount += 1;
 
             // Test for completion and exit if so
-            if (self.fileCount >= self.fileTotal)
+            if (_fileCount >= _fileTotal) {
                 return true;
+            }
 
             // Refer back to this method upon completion
-            self.fileCreate();
+            _fileCreate();
         };
 
         // Insert new document
-        this.htmlHead[0].appendChild(script);
+        _htmlHead[0].appendChild(script);
     },
 
-    // Pre-load images files
-    loadXmlHttp: new XMLHttpRequest(),
-    imgUrl: 'images/',
-    getImgs: function() {
-        var self = this;
-
+    _getImgs = function() {
         // Prep XML HTTP request
-        this.loadXmlHttp.open('GET', 'include/image-files.php',true);
-        this.loadXmlHttp.send();
+        var loadXmlHttp = new XMLHttpRequest();
+        loadXmlHttp.open('GET', 'include/image-files.php',true);
+        loadXmlHttp.send();
 
         // When request is complete
-        this.loadXmlHttp.onreadystatechange = function() {
-            if (self.loadXmlHttp.readyState === 4 && self.loadXmlHttp.status === 200) {
+        loadXmlHttp.onreadystatechange = function() {
+            if (loadXmlHttp.readyState === 4 && loadXmlHttp.status === 200) {
                 // Prep data
-                var images = JSON.parse(self.loadXmlHttp.responseText);
+                var images = JSON.parse(loadXmlHttp.responseText);
 
                 // Increment number of game items
-                self.total += images.length;
+                cp.load.assetTotal += images.length;
 
                 // Loop through all items
                 // http://www.mennovanslooten.nl/blog/post/62
-                for ( var i = images.length; i--; ) {
-                    var img = new Image();
-                    var imgName = images[i];
-                    img.src = self.imgUrl + images[i];
+                var img; // container for creating new images in a loop
+                for (var i = images.length; i--;) {
+                    img = new Image();
+                    img.src = cp.load.imgUrl + images[i];
 
                     img.onload = (function(val) {
                         // returning a function forces the load into another scope
                         return function() {
-                            self.count++;
+                            cp.load.assetCount++;
                         }
                     })(i);
                 }
@@ -173,10 +89,8 @@ cp.load = {
         }
     },
 
-    // Pre-load audio files
-    getAudio: function() {
-        var self = this;
-
+    // TODO: Add a url to retrieve audio
+    _getAudio = function() {
         // Prep XML http request
         var loadXmlHttp = new XMLHttpRequest();
         loadXmlHttp.open('GET', 'include/sound-files.php', true);
@@ -188,7 +102,7 @@ cp.load = {
                 // Unstringify data
                 var sounds = JSON.parse(loadXmlHttp.responseText);
 
-                self.total += sounds.length;
+                cp.load.assetTotal += sounds.length;
 
                 // Loop through all items
                 for ( var s = sounds.length; s--; ) {
@@ -197,10 +111,91 @@ cp.load = {
 
                     // returning a function forces the load into another scope
                     sound.addEventListener('canplaythrough', (function(val) {
-                        self.count++;
+                        cp.load.assetCount++;
                     })(s));
                 }
             }
         };
-    }
-};
+    };
+
+    cp.load = {
+        assetCount: 0, // Total number of successfully loaded assets
+        assetTotal: null, // Total number of assets to load
+        loadFiles: null, // An array of file names to load, only loads files out of js->objects
+        fileUrl: 'js/objects/', // Setup and information for loading file assets
+        imgUrl: 'images/', // Default image loading location
+
+        init: function() {
+            // Begin loading files
+            _getFiles();
+
+            // Begin loading images (should fire draw when image files are added to total
+            _getImgs();
+
+            _getAudio();
+
+            // temporarily replace loop
+            _loopHold = cp.core.loop;
+            cp.core.loop = this.loop;
+        },
+
+        // Logic for drawing and displaying loading screen
+        // Must refer to cp.load to prevent reference errors since scope changes to cp.core temporarily
+        loop: function() {
+            // Create loading numbers string
+            _loadProgress = cp.load.assetCount + ' / ' + cp.load.assetTotal;
+
+            // Create loading bar information
+            _loadPercent = (cp.load.assetCount / cp.load.assetTotal).toFixed(2);
+
+            // Count loaded objects
+            if (cp.load.assetCount === cp.load.assetTotal) {
+                // turn off the animation and run the game
+                cp.load.callback();
+
+                // Check to see if debugging is active
+                cp.debug.init();
+
+                // Repair original loop
+                cp.core.loop = _loopHold;
+            }
+
+            if (cp.load.assetCount > 0) {
+                // Background
+                cp.ctx.fillStyle = '#000';
+                cp.ctx.fillRect(0, 0, cp.core.canvasWidth, cp.core.canvasHeight);
+
+                // Loading text
+                cp.ctx.fillStyle = '#fff';
+                cp.ctx.font = '40px arial';
+                cp.ctx.textAlign = 'center';
+                cp.ctx.fillText('Loading...', cp.core.canvasWidth / 2, cp.core.canvasHeight / 2 - 50);
+
+                // Asset count text
+                cp.ctx.font = '20px arial';
+                cp.ctx.fillText(_loadProgress, cp.core.canvasWidth / 2, cp.core.canvasHeight / 2 + 50);
+
+                // Start loading bar background
+                // TODO: These should not be generated every single time in the loop, make these _private variables
+                var offset = 100,
+                barX = offset / 2, // Note: might break due to self reference
+                barY = cp.core.canvasHeight / 2 - 20,
+                barWidth = cp.core.canvasWidth - offset,
+                barHeight = 40;
+
+                cp.ctx.fillStyle = '#fff';
+                cp.ctx.fillRect(barX, barY, barWidth, barHeight);
+
+                // Loading bar overlay (progress bar)
+                offset = 5;
+                barX = barX + offset;
+                barY = barY + offset;
+                barWidth = (barWidth - (offset * 2)) * _loadPercent;
+                barHeight = barHeight - (offset * 2);
+
+                cp.ctx.fillStyle = '#00aaff';
+                cp.ctx.fillRect(barX, barY, barWidth, barHeight);
+            }
+        }
+    };
+}(cp));
