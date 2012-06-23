@@ -10,7 +10,7 @@ To-Do:
 
 var cp = cp || {};
 
-(function(cp, window) {
+(function(cp) {
     var _records = {
         fps: {
             title: 'FPS',
@@ -296,4 +296,4 @@ var cp = cp || {};
             }
         }
     };
-}(cp, window));
+}(cp));

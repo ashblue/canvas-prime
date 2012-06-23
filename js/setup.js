@@ -13,5 +13,5 @@ cp.debug.showCollisions = true;
 cp.core.init(500, 500, function() {
     cp.game.spawn('AnimTest');
     cp.game.spawn('Image');
-    //cp.game.spawn('KeyTest');
+    cp.game.spawn('KeyTest');
 });

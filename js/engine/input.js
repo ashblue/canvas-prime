@@ -12,29 +12,9 @@ own keyboard events with an object that can be destroyed or created.
 
 var cp = cp || {};
 
-cp.input = {
-    init: function() {
-        // Creates keyboard monitoring
-        window.addEventListener('keydown', this.store, true);
-        window.addEventListener('keyup', this.remove, true);
-
-        // Mouse logic only relative to the Canvas
-        cp.ctx.canvas.addEventListener('mousemove', this.move, true);
-        cp.ctx.canvas.addEventListener('mousedown', this.store, true);
-        cp.ctx.canvas.addEventListener('mouseup', this.remove, true);
-    },
-
-    // Container for storing all current keys
-    storage: {},
-
-    // Only contains binded keys
-    active: {},
-
-    // Key items ready for deletion
-    graveyard: [],
-
+(function (cp) {
     // Returns a mouse or keyboard key depending upon the called event
-    getKey: function(e) {
+    var _getKey = function(e) {
         // Keyboards don't have the mouse's button property, check for it
         // to verify a keyboard is firing
         if (e.button === undefined) {
@@ -46,116 +26,39 @@ cp.input = {
         }
     },
 
-    // Stores the current key event in an array
-    store: function(e) {
-        var key = cp.input.getKey(e);
+    // Special function relative to the mouse
+    _mouseMove = function(e) {
+        cp.input.mouse.x = e.offsetX;
+        cp.input.mouse.y = e.offsetY;
+    },
 
-        // Get current status of existing keyCode (if present)
-        var status = cp.input.storage[key];
-
-        // Set as active only if the existing key is not already set
-        if ( ! status ) {
-            cp.input.storage[key] = 'active';
-        }
+    // Logic for when the mouse doesn't hover over the Canvas
+    _mouseOut = function(e) {
+        cp.input.mouse.x = null;
+        cp.input.mouse.y = null;
     },
 
     // Marks the current key for deletion
-    remove: function(e) {
-        var key = cp.input.getKey(e);
-
-        cp.input.storage[key] = 'remove';
+    _remove = function(e) {
+        var key = _getKey(e);
+        _storage[key] = 'remove';
     },
 
-    // Monitors active keys and modifies them as necessary from each frame
-    // Note: This loop could be better optimized
-    monitor: function() {
-        // Loop through all keyboard objects and modify as necessary
-        for ( var key in this.storage ) {
-            // Cache active object value for comparison only, cannot be set
-            var item = this.storage[key];
+    // Stores the current key event in an array and sets it to active
+    _store = function(e) {
+        var key = _getKey(e);
 
-            // If the item has been recently pressed set it to the down state
-            if (item === 'active') {
-                this.storage[key] = 'down';
+        // Get current status of existing keyCode (if present)
+        var status = _storage[key];
 
-            // After down has been set for one frame, change it to pressed
-            } else if (item === 'down') {
-                this.storage[key] = 'pressed';
-
-            // After up has been set, change the status to delete
-            } else if (item === 'remove') {
-                this.storage[key] = 'up';
-
-            // After a full frame has passed, delete the item out of existence
-            } else if (item === 'up') {
-                delete this.storage[key];
-            }
-        }
-    },
-
-    // Binds a key with a corresponding tag/name that can be referenced
-    bind: function(key, tag) {
-        // Convert key name to keycode
-        key = this.library[key];
-
-        // Store key value for reference later
-        this.active[tag] = key;
-    },
-
-    // Unbinds a specific key
-    unbind: function(tag) {
-        delete this.active[tag];
-    },
-
-    // Complete key binding obliteration
-    unbindAll: function() {
-        this.active = [];
-    },
-
-    // Detects if a key has been pressed for one frame
-    down: function(tag) {
-        // Test if key was pressed
-        if (this.storage[this.active[tag]] === 'down') {
-            return true;
-        } else {
-            return false;
-        }
-    },
-
-    // Detects if a key has been released within the current frame
-    up: function(tag) {
-        // Test if key was pressed
-        if (this.storage[this.active[tag]] === 'up') {
-            return true;
-        } else {
-            return false;
-        }
-    },
-
-    // Returns true for pressed and disregards press and release's frame based rules
-    press: function(tag) {
-        // Cache state of storage item
-        var state = this.storage[this.active[tag]];
-
-        // Return true if anything exceupt up is pressed to prevent logic overlap
-        if (state &&
-        state !== 'up') {
-            return true;
-        } else {
-            return false;
-        }
-    },
-
-    // Special function relative to the mouse
-    move: function(e) {
-        cp.input.mouse = {
-            x: e.offsetX,
-            y: e.offsetY
+        // Set as active only if the existing key is not already set
+        if ( ! status ) {
+            _storage[key] = 'active';
         }
     },
 
     // Archived library so you don't have to remember the keyboard event code
-    library: {
+    _library = {
         // Mouse
         'clickLeft': 0,
         'clickMiddle': 1,
@@ -270,5 +173,98 @@ cp.input = {
         'f10': 121,
         'f11': 122,
         'f12': 123
-    }
-};
+    },
+
+    _storage = {}, // Container for storing all pressed keys
+    _active = {}; // Only contains binded keys
+
+    cp.input = {
+        mouse: {
+            x: false,
+            y: false
+        },
+
+        init: function() {
+            // Creates keyboard monitoring
+            window.addEventListener('keydown', _store, true);
+            window.addEventListener('keyup', _remove, true);
+
+            // Mouse logic only relative to the Canvas
+            cp.ctx.canvas.addEventListener('mousemove', _mouseMove, true);
+            cp.ctx.canvas.addEventListener('mouseout', _mouseOut, true);
+            cp.ctx.canvas.addEventListener('mousedown', _store, true);
+            cp.ctx.canvas.addEventListener('mouseup', _remove, true);
+        },
+
+        // TODO: This loop could be better optimized, verify down, press, and up all fire in order
+        // Monitors active keys and modifies them as necessary from each frame
+        // Be aware that in a console it looks like press occurs before down and up,
+        // this is not true. In face, they are firing at the exact same time.
+        monitor: function() {
+            // Loop through all keyboard objects and modify as necessary
+            for ( var key in _storage ) {
+                // Cache active object value for comparison only, cannot be set
+                var item = _storage[key];
+
+                // If the item has been recently pressed set it to the down state
+                if (item === 'active') {
+                    _storage[key] = 'down';
+
+                // After down has been set for one frame, change it to pressed
+                } else if (item === 'down') {
+                    _storage[key] = 'pressed';
+
+                // After up has been set, change the status to delete
+                } else if (item === 'remove') {
+                    _storage[key] = 'up';
+
+                // After a full frame has passed, delete the item out of existence
+                } else if (item === 'up') {
+                    delete _storage[key];
+                }
+            }
+        },
+
+        // Binds a key with a corresponding tag/name that can be referenced
+        bind: function(key, tag) {
+            // Convert key name to keycode
+            key = _library[key];
+
+            // Store key value for reference later
+            _active[tag] = key;
+        },
+
+        // Unbinds a specific key or all keys if no tag param is passed
+        unbind: function(tag) {
+            if (tag !== undefined) {
+                delete _active[tag];
+            } else {
+                _active = {};
+            }
+        },
+
+        // Detects if a key has been pressed for one frame
+        down: function(tag) {
+            return _storage[_active[tag]] === 'down';
+        },
+
+        // Detects if a key has been released within the current frame
+        up: function(tag) {
+            return _storage[_active[tag]] === 'up';
+        },
+
+        // Returns true for pressed and disregards press and release's frame based rules
+        press: function(tag) {
+            // Cache state of storage item
+            var state = _storage[_active[tag]];
+
+            // Return true if anything exceupt up is pressed to prevent logic overlap
+            if (state &&
+            state !== 'up') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    };
+}(cp));

@@ -18,11 +18,31 @@ Example usage:
 
 TODO: Might want to consider providing some kind of system crash error in-case
 the user has local storage disabled for some stupid reason.
+
+TODO: Add a cached version of storage as JSON if its faster to access, example:
+    storage: {},
+    build: function() {
+        // Reset current storage
+        this.storage = {};
+
+        // Start loop
+        for (var i = sessionStorage.length; i--;){
+            // Get the storage key
+            var key = sessionStorage.key(i);
+
+            // Get the result
+            var result = this.get(key);
+
+            // Dump gathered data into JSON object
+            this.storage[key] = result;
+        }
+    }
+
 */
 
 var cp = cp || {};
 
-(function(cp, window) {
+(function(cp) {
     var _support = function() {
         try {
             cp.storage.save('test', 'asdf');
@@ -59,4 +79,4 @@ var cp = cp || {};
             sessionStorage.removeItem(key);
         }
     };
-}(cp, window));
+}(cp));
