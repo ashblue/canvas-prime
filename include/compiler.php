@@ -1,65 +1,46 @@
 <?php
 /*
-Name: Engine Output from JS files
+Name: Compresses JavaScript and compiles the rest of the apps components
 Version: .01
-Desc: Assembles and strips unecessary content to create a straight text output for the engine.
+Desc: Assembles and strips unecessary content to output a packaged version of the current site build.
 
-TODO: Fix as its currently broken.
+TODO: Only works with the existing structure, should also compile and
+compress additional files / folders.
 */
 
-// Retrive all functions
-include 'functions.php';
 
-// Get all files
-$files = get_files('../js/engine','.js');
+include 'functions.php'; // Retrive all functions
+include 'lib/jsminplus.php'; // Load in the JSMin+ library to compress JavaScript files when they're ready
 
-// Strip out unnecessary data
-$body = '';
-$file_num = count($files);
-foreach ($files as $index=>$file):
-    // Get the contents
+$compiled_engine = ''; // Storage location for the newly assembled engine
+
+// Get all of the major JavaScript file chunks
+$depen_files = get_files('../js/depen', '.js');
+$engine_files = get_files('../js/engine', '.js');
+$object_files = get_files('../js/objects', '.js');
+$setup_file = get_files('../js', '.js');
+
+// Assemble dependences
+
+// Assemble the engine file
+foreach ($engine_files as $index=>$file):
+    // Get the file contents
     $content = file_get_contents('../js/engine/' . $file, true);
 
-    // Strip the object creation declaration
-    $content = str_replace('var cp = cp || {};', '', $content);
-
-    // Replace first instance of cp.
-    $content = preg_replace('/cp./', '', $content, 1);
-
-    // Indent every freikin line with 4 spaces
-    $content_format = '';
-    $lines = preg_split("/(\r?\n)/", $content);
-    foreach($lines as $ind=>$line){
-        // Insert break with line
-        $content_format .= $line;
-
-        // Exit on last item
-        if ($ind + 1 === count($lines) && !($index + 1 === $file_num)):
-            $content_format .= ',';
-        elseif ($ind + 1 === count($lines) && $index + 1 === $file_num):
-            $content_format .= '
-
-';
-        else:
-            $content_format .= '
-    ';
-        endif;
-    }
+    // Remove "var cp = cp || {};" from the start of every file except the first
+    if ($compiled_engine !== ''):
+        $content = str_replace('var cp = cp || {};', '', $content);
+    endif;
 
     // Append content to body
-    $body .= $content_format;
+    $compiled_engine .= $content;
 endforeach;
 
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Content-type: text/plain;\n");
-header("Content-Transfer-Encoding: binary");
-header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
 
-// Echo the script
-echo "header info here\n";
 
-//$body = file_get_contents('../js/engine/test1.js', true);
-echo "cp = {\n";
-    echo $body . "\n";
-echo "};\n";
+// Force the compiler page to return a file instead of a page
+//header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+//header("Content-type: text/plain;\n");
+//header("Content-Transfer-Encoding: binary");
+//header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
 ?>
