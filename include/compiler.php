@@ -6,8 +6,6 @@ Desc: Assembles and strips unecessary content to output a packaged version of th
 
 TODO: Only works with the existing structure, should also compile and
 compress additional files / folders.
-
-TODO: All files need a whitespace fix similar to the one in _old-compiler.php, but a function
 */
 
 include 'functions.php'; // Retrive all functions
@@ -17,6 +15,11 @@ include 'lib/jsminplus.php'; // Load in the JSMin+ library to compress JavaScrip
 $object_files = get_files('../js/objects', '.js');
 $setup_file = get_files('../js', '.js');
 
+// Safe line breaks for JS files
+$line_break = '
+
+';
+
 // Assemble dependences
 $compiled_depen = '';
 $depen_files = get_files('../js/depen', '.js');
@@ -25,7 +28,7 @@ foreach ($depen_files as $file):
     $content = file_get_contents('../js/depen/' . $file, true);
 
     // Append content to body
-    $compiled_depen .= $content;
+    $compiled_depen .= $content . $line_break;
 endforeach;
 
 // Assemble the engine file
@@ -41,7 +44,7 @@ foreach ($engine_files as $file):
     endif;
 
     // Append content to body
-    $compiled_engine .= $content;
+    $compiled_engine .= $content . $line_break;
 endforeach;
 
 // Get the files necessary to patch the loader for no XMLHTTP requests with compatible JS data
@@ -61,14 +64,20 @@ foreach ($depen_files as $file):
     $content = file_get_contents('../js/objects/' . $file, true);
 
     // Append content to body
-    $compiled_objects .= $content;
+    $compiled_objects .= $content . $line_break;
 endforeach;
 
-// Assemble all of the prepared JavaScript files into one file called game.js
+// Get the setup file
+$setup_file = file_get_contents('../js/setup.js', true);
 
-// Run JSMinPlus on game.js
+// Assemble all of the prepared JavaScript files into one file called game.js
+$compiled_js = $compiled_depen . $line_break . $compiled_engine . $line_break . $compiled_objects . $line_break . $setup_file;
+
+// Run JSMinPlus compiled JavaScript
+$miny_js = JSMinPlus::minify($compiled_js, 'game.js');
 
 // Hijack index.php contents and turn it into an HTML file with the proper references for new files
+
 
 // Zip up and send back to the user the audio, images, js (with compiled code), style, and index.php
 
@@ -76,8 +85,9 @@ endforeach;
 
 
 // Force the compiler page to return a file instead of a page
-//header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-//header("Content-type: text/plain;\n");
-//header("Content-Transfer-Encoding: binary");
-//header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Content-type: text/plain;\n");
+header("Content-Transfer-Encoding: binary");
+header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
+echo $miny_js;
 ?>
