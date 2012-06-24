@@ -1,7 +1,11 @@
 /*
-Name: Loading Logic
+Name: Load Assets
 Version: 1
 Desc: Controls all file loading mechanisms and draws the loading screen while waiting.
+
+It should be noted that extra pre-caution should be taken to make sure that this file
+is compatible with the framework's compiler. Extra variables will be injected during
+compiling to circumvent XMLHTTP requests or completely remove certain loaders.
 */
 
 var cp = cp || {};
@@ -10,6 +14,10 @@ var cp = cp || {};
     var _loopHold, // temporary dump location to hold the cp.core.loop while its temporarily replaced to show the load screen
     _loadProgress, // Shows the current load progress text
     _loadPercent, // Total percent of loaded assets
+
+    _COMPILER_LOADING = null, // IMPORTANT: This variable is set to true by the compiler automatically, DO NOT CHANGE
+    _COMPILER_IMG = null, // Compiler script will replace null with a JSON string
+    _COMPILER_AUDIO = null, // Compiler script will replace null with a JSON string
 
     _htmlHead = document.getElementsByTagName('HEAD'),
     _fileCount = 0,
@@ -56,78 +64,92 @@ var cp = cp || {};
         _htmlHead[0].appendChild(script);
     },
 
-    _getImgs = function() {
+    // Creates an XML HTTP request and fires a callback
+    _createXmlHttp = function(url, callback) {
         // Prep XML HTTP request
         var loadXmlHttp = new XMLHttpRequest();
-        loadXmlHttp.open('GET', 'include/image-files.php',true);
+        loadXmlHttp.open('GET', url, true);
         loadXmlHttp.send();
 
-        // When request is complete
+        // When request is fully loaded
         loadXmlHttp.onreadystatechange = function() {
             if (loadXmlHttp.readyState === 4 && loadXmlHttp.status === 200) {
-                // Prep data
-                var images = JSON.parse(loadXmlHttp.responseText);
-
-                // Increment number of game items
-                cp.load.assetTotal += images.length;
-
-                // Loop through all items
-                // http://www.mennovanslooten.nl/blog/post/62
-                var img; // container for creating new images in a loop
-                for (var i = images.length; i--;) {
-                    img = new Image();
-                    img.src = cp.load.imgUrl + images[i];
-
-                    img.onload = (function(val) {
-                        // returning a function forces the load into another scope
-                        return function() {
-                            cp.load.assetCount++;
-                        }
-                    })(i);
-                }
+                callback(JSON.parse(loadXmlHttp.responseText));
             }
+        };
+    },
+
+    _getImgs = function() {
+        var callback = function(response) {
+            // Prep data
+            var images = response;
+
+            // Increment number of game items
+            cp.load.assetTotal += images.length;
+
+            // Loop through all items
+            // http://www.mennovanslooten.nl/blog/post/62
+            var img; // container for creating new images in a loop
+            for (var i = images.length; i--;) {
+                img = new Image();
+                img.src = cp.load.imgUrl + images[i];
+
+                img.onload = (function(val) {
+                    // returning a function forces the load into another scope
+                    return function() {
+                        cp.load.assetCount++;
+                    }
+                })(i);
+            }
+        };
+
+        if (_COMPILER_LOADING !== true) {
+            _createXmlHttp('include/image-files.php', callback);
+        } else {
+            callback(_COMPILER_IMG);
         }
     },
 
     // TODO: Add a url to retrieve audio
     _getAudio = function() {
-        // Prep XML http request
-        var loadXmlHttp = new XMLHttpRequest();
-        loadXmlHttp.open('GET', 'include/sound-files.php', true);
-        loadXmlHttp.send();
+        var callback = function(response) {
+            // Unstringify data
+            var sounds = response;
 
-        // Request complete logic
-        loadXmlHttp.onreadystatechange = function() {
-            if (loadXmlHttp.readyState === 4 && loadXmlHttp.status === 200) {
-                // Unstringify data
-                var sounds = JSON.parse(loadXmlHttp.responseText);
+            cp.load.assetTotal += sounds.length;
 
-                cp.load.assetTotal += sounds.length;
+            // Loop through all items
+            for ( var s = sounds.length; s--; ) {
+                // Create sound file from proper location
+                var sound = new Audio(cp.audio.url + sounds[s] + cp.audio.type);
 
-                // Loop through all items
-                for ( var s = sounds.length; s--; ) {
-                    // Create sound file from proper location
-                    var sound = new Audio(cp.audio.url + sounds[s] + cp.audio.type);
-
-                    // returning a function forces the load into another scope
-                    sound.addEventListener('canplaythrough', (function(val) {
-                        cp.load.assetCount++;
-                    })(s));
-                }
+                // returning a function forces the load into another scope
+                sound.addEventListener('canplaythrough', (function(val) {
+                    cp.load.assetCount++;
+                })(s));
             }
         };
+
+        if (_COMPILER_LOADING !== true) {
+            _createXmlHttp('include/sound-files.php', callback);
+        } else {
+            callback(_COMPILER_AUDIO);
+        }
+
     };
 
     cp.load = {
         assetCount: 0, // Total number of successfully loaded assets
-        assetTotal: null, // Total number of assets to load
+        assetTotal: 0, // Total number of assets to load
         loadFiles: null, // An array of file names to load, only loads files out of js->objects
         fileUrl: 'js/objects/', // Setup and information for loading file assets
         imgUrl: 'images/', // Default image loading location
 
         init: function() {
-            // Begin loading files
-            _getFiles();
+            if (!_COMPILER_LOADING) {
+                // Begin loading files
+                _getFiles();
+            }
 
             // Begin loading images (should fire draw when image files are added to total
             _getImgs();

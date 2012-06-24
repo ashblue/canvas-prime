@@ -6,24 +6,32 @@ Desc: Assembles and strips unecessary content to output a packaged version of th
 
 TODO: Only works with the existing structure, should also compile and
 compress additional files / folders.
-*/
 
+TODO: All files need a whitespace fix similar to the one in _old-compiler.php, but a function
+*/
 
 include 'functions.php'; // Retrive all functions
 include 'lib/jsminplus.php'; // Load in the JSMin+ library to compress JavaScript files when they're ready
 
-$compiled_engine = ''; // Storage location for the newly assembled engine
-
 // Get all of the major JavaScript file chunks
-$depen_files = get_files('../js/depen', '.js');
-$engine_files = get_files('../js/engine', '.js');
 $object_files = get_files('../js/objects', '.js');
 $setup_file = get_files('../js', '.js');
 
 // Assemble dependences
+$compiled_depen = '';
+$depen_files = get_files('../js/depen', '.js');
+foreach ($depen_files as $file):
+    // Get the file contents
+    $content = file_get_contents('../js/depen/' . $file, true);
+
+    // Append content to body
+    $compiled_depen .= $content;
+endforeach;
 
 // Assemble the engine file
-foreach ($engine_files as $index=>$file):
+$compiled_engine = '';
+$engine_files = get_files('../js/engine', '.js');
+foreach ($engine_files as $file):
     // Get the file contents
     $content = file_get_contents('../js/engine/' . $file, true);
 
@@ -35,6 +43,35 @@ foreach ($engine_files as $index=>$file):
     // Append content to body
     $compiled_engine .= $content;
 endforeach;
+
+// Get the files necessary to patch the loader for no XMLHTTP requests with compatible JS data
+$image_files = json_encode(get_files('../images', array('.png', '.jpg', '.gif')));
+$sound_files = str_replace('.ogg', '', json_encode(get_files('../audio', '.ogg')));
+
+// Replace necessary lines in the existing content
+$compiled_engine = str_replace('_COMPILER_LOADING = null', '_COMPILER_LOADING = true', $compiled_engine); // Make the loader shut of XMLHTTP requests
+$compiled_engine = str_replace('_COMPILER_IMG = null', '_COMPILER_IMG = ' . $image_files, $compiled_engine); // Declare images to load
+$compiled_engine = str_replace('_COMPILER_AUDIO = null', '_COMPILER_AUDIO = ' . $sound_files, $compiled_engine); // Declare sound to load
+
+// Add the objects folder files
+$compiled_objects = '';
+$depen_files = get_files('../js/objects', '.js');
+foreach ($depen_files as $file):
+    // Get the file contents
+    $content = file_get_contents('../js/objects/' . $file, true);
+
+    // Append content to body
+    $compiled_objects .= $content;
+endforeach;
+
+// Assemble all of the prepared JavaScript files into one file called game.js
+
+// Run JSMinPlus on game.js
+
+// Hijack index.php contents and turn it into an HTML file with the proper references for new files
+
+// Zip up and send back to the user the audio, images, js (with compiled code), style, and index.php
+
 
 
 
