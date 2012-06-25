@@ -77,7 +77,12 @@ $compiled_js = $compiled_depen . $line_break . $compiled_engine . $line_break . 
 $miny_js = JSMinPlus::minify($compiled_js, 'game.js');
 
 // Hijack index.php contents and turn it into an HTML file with the proper references for new files
-
+$html_file = file_get_contents('../index.php', true);
+$js_ref = '<script type="text/javascript" src="js/game.js"></script>';
+$remove_start = strpos($html_file, '<!-- COMPILER_REPLACE -->');
+$remove_end = strpos($html_file, '<!-- END_COMPILER_REPLACE -->') + strlen('<!-- END_COMPILER_REPLACE -->');
+$html_file = substr_replace($html_file, $js_ref, $remove_start, $remove_end - $remove_start);
+echo $html_file;
 
 // Zip up and send back to the user the audio, images, js (with compiled code), style, and index.php
 
@@ -85,9 +90,9 @@ $miny_js = JSMinPlus::minify($compiled_js, 'game.js');
 
 
 // Force the compiler page to return a file instead of a page
-header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-header("Content-type: text/plain;\n");
-header("Content-Transfer-Encoding: binary");
-header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
-echo $miny_js;
+//header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+//header("Content-type: text/plain;\n");
+//header("Content-Transfer-Encoding: binary");
+//header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
+//echo $miny_js;
 ?>
