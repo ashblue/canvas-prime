@@ -2,8 +2,10 @@
 /*
 Name: Function Library
 Version: .01
-Desc: Contains all functions for engine assembly and creation so various functions can be re-usedn
+Desc: Contains all functions for engine assembly and creation so various functions can be re-used.
 */
+
+include('package_zipper.php');
 
 /*
  * Retrieves files from a specified directory and filters them. Used to retrieve images, audio, or anything else you can imagine.
@@ -14,7 +16,7 @@ Desc: Contains all functions for engine assembly and creation so various functio
 function get_files($dir, $filter) {
     // Get file data
     $files = scandir($dir);
-    
+
     // Cycle through images and create an array of valid images
     $data = array();
     foreach ($files as $file):
@@ -56,11 +58,11 @@ function output_json($json_data) {
  */
 function string_compare($haystack, $needles) {
     $type = gettype($needles);
-    
+
     // Basic string so test as normal
     if ($type === 'string'):
        return strpos($haystack, $needles);
-       
+
     // An array, execute a loop and return if true is matched for anything
     elseif ($type === 'array'):
         foreach ($needles as $needle):

@@ -1,24 +1,74 @@
 <?php
 /*
 Name: Compresses JavaScript and compiles the rest of the apps components
-Version: .01
+Version: 1
 Desc: Assembles and strips unecessary content to output a packaged version of the current site build.
 
 TODO: Only works with the existing structure, should also compile and
 compress additional files / folders.
 */
 
-include 'functions.php'; // Retrive all functions
-include 'lib/jsminplus.php'; // Load in the JSMin+ library to compress JavaScript files when they're ready
+// Retrive all functions
+include 'functions.php';
+
+// Load in the JSMin+ library to compress JavaScript files when they're ready
+// TODO: Replace with uglify shell script
+include 'lib/jsminplus.php';
+
+class Compile_Game {
+    // Safe line breaks for JS files
+    $LINE_BREAKS = "\n\n";
+
+    // Start of content removal in an HTML file
+    $HTML_REMOVE_START = '<!-- COMPILER_REPLACE -->';
+
+    // End of content removal in an HTML file
+    $HTML_REMOVE_END = '<!-- END_COMPILER_REPLACE -->';
+
+    function __construct() {
+        // Assemble all of the dependencies, engine, and object files
+
+        // Patch the assembled engine's loader script for XMLHTTP info
+
+        // Send over all the JavaScript file strings to be combined and compressed
+
+        // Fix the index.php so its index.html and only refs 1 js file
+
+        // Create the zip file by cloning the proper directory, deleting
+        // all PHP, old JS, and replacing the index.php file
+    }
+
+    function _assemble_files($dir, $ext, $remove_string) {
+
+    }
+
+    function _combine_files($file_strings) {
+
+    }
+
+    function _patch_XMLHTTP() {
+
+    }
+
+    function _compress_js($js_code) {
+
+    }
+
+    function _setup_index() {
+
+    }
+
+    function _create_zip() {
+
+    }
+};
 
 // Get all of the major JavaScript file chunks
 $object_files = get_files('../js/objects', '.js');
 $setup_file = get_files('../js', '.js');
 
 // Safe line breaks for JS files
-$line_break = '
-
-';
+$line_break = "\n\n";
 
 // Assemble dependences
 $compiled_depen = '';
@@ -82,17 +132,14 @@ $js_ref = '<script type="text/javascript" src="js/game.js"></script>';
 $remove_start = strpos($html_file, '<!-- COMPILER_REPLACE -->');
 $remove_end = strpos($html_file, '<!-- END_COMPILER_REPLACE -->') + strlen('<!-- END_COMPILER_REPLACE -->');
 $html_file = substr_replace($html_file, $js_ref, $remove_start, $remove_end - $remove_start);
-echo $html_file;
 
 // Zip up and send back to the user the audio, images, js (with compiled code), style, and index.php
 
 
-
-
 // Force the compiler page to return a file instead of a page
-//header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-//header("Content-type: text/plain;\n");
-//header("Content-Transfer-Encoding: binary");
-//header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
-//echo $miny_js;
+header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+header("Content-type: text/plain;\n");
+header("Content-Transfer-Encoding: binary");
+header("Content-Disposition: attachment; filename=\"engine-output.js\";\n\n");
+echo $compiled_engine;
 ?>
