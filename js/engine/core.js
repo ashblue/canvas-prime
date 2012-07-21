@@ -100,6 +100,8 @@ var cp = cp || {};
                 if (run === undefined) {
                     return console.error('Failure to load, no run logic given');
                 }
+                
+                cp.audio.init();
 
                 // Load everyting necessary with a run callback
                 cp.load.callback = run;
@@ -107,8 +109,6 @@ var cp = cp || {};
 
                 // Run any extra logic added by user
                 this.hookInit();
-
-                cp.audio.init();
 
                 // Activate keyboard keys
                 cp.input.init();

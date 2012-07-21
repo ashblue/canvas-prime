@@ -5,8 +5,6 @@ Version: .01
 Desc: Contains all functions for engine assembly and creation so various functions can be re-used.
 */
 
-include('package_zipper.php');
-
 /*
  * Retrieves files from a specified directory and filters them. Used to retrieve images, audio, or anything else you can imagine.
  * $dir (string) - Directory to retrieve files from, relative to the page its called from
