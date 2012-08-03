@@ -100,7 +100,7 @@ var cp = cp || {};
                 if (run === undefined) {
                     return console.error('Failure to load, no run logic given');
                 }
-                
+
                 cp.audio.init();
 
                 // Load everyting necessary with a run callback
@@ -136,13 +136,11 @@ var cp = cp || {};
         loop: function() {
             cp.debug.start();
 
-            // Clear out the canvas
-            cp.ctx.clearRect(0, 0, _canvas.width, _canvas.height);
+            cp.camera.setViewport();
 
             // Loop through every object in storage via reverse loop for maximum performance.
             // Drawing in reverse also makes newly drawn items drawn on top instead of underneath everything
             for (var obj = 0; obj < this.storage.length; obj++) {
-
                 // Run update functions before drawing anything to prevent screen pops for recently spawned items
                 cp.debug.recordStart('update');
                 this.storage[obj].update();
@@ -150,7 +148,9 @@ var cp = cp || {};
 
                 // Keeping this before collision test prevents crash on Game.kill(object)
                 cp.debug.recordStart('draw');
-                this.storage[obj].draw();
+                if (cp.camera.visibleTest()) {
+                    this.storage[obj].draw();
+                }
                 cp.debug.recordEnd('draw');
 
                 // Check for a collision on an a type storage item to save loop execution time
@@ -176,6 +176,8 @@ var cp = cp || {};
                 }
                 cp.debug.recordEnd('collisions');
             }
+
+            cp.camera.restoreViewport();
 
             // Clean out killed items
             _graveyardPurge();
