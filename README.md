@@ -1,4 +1,6 @@
-Please note the below docs are out of date, new ones coming soon!
+Current project listed here is the stable version. A much more advanced and robust version is available in the 
+development branch. Currently not stable. Please note the below docs are out of date, new ones coming when the development
+branch version is stable.
 
 Setup Guide
 =============
