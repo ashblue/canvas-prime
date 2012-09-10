@@ -11,6 +11,10 @@ var _fs = require('fs');
 
 var _express = require('express');
 
+var _jsp = require('uglify-js').parser;
+
+var _pro = require('uglify-js').uglify;
+
 var _private = {
     /**
      * Combines JavaScript files and returns a string
@@ -127,6 +131,9 @@ var _private = {
  * @todo Ability to assemble the zip file by running 'node cp-compile' in the command line
  */
 var compiler = {
+    /**
+     * @todo Break into multiple methods
+     */
     init: function () {
         // Compile JavaScript engine
         var jsOutput = _private.getCombinedJS(_jsBuildOrder);
@@ -154,6 +161,11 @@ var compiler = {
         jsOutput += _private.removeStringBetween(userJS, 'cp.load.loadFiles = ', ';');
 
         // Uglify jsOutput
+        // Customization options https://github.com/mishoo/UglifyJS
+        var ast = _jsp.parse(jsOutput);
+        ast = _pro.ast_mangle(ast);
+        ast = _pro.ast_squeeze(ast);
+        jsOutput = _pro.gen_code(ast);
 
         // Get a copy of index.html and replace the proper contents in var htmlOutput
 
