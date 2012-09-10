@@ -5,13 +5,13 @@
  * @todo Break logic up into smaller files?
  * @todo Change file name requests to proper names '.json' instead of '.php' files
  */
-
 var SELF = null;
 
 var server = {
     // Retrieve necessary node components
     fs: require('fs'),
     express: require('express'),
+    compiler: require('./compiler/controller.js'),
 
     /**
      * Creates the server with basic settings
@@ -36,6 +36,7 @@ var server = {
 
     /**
      * Create static folders
+     * @link http://expressjs.com/api.html#app.configure
      * @todo Looks like the first parameter can be removed from server.use
      * @todo Add switches for different production environments, caching, no-caching, ect.
      * @returns {self}

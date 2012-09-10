@@ -15,7 +15,7 @@ var cp = cp || {};
     _loadProgress, // Shows the current load progress text
     _loadPercent, // Total percent of loaded assets
 
-    COMPILER_LOADING = null, // IMPORTANT: This variable is set to true by the compiler automatically, DO NOT CHANGE
+    //COMPILER_LOADING = null, // IMPORTANT: This variable is set to true by the compiler automatically, DO NOT CHANGE
     COMPILER_IMG = null, // Compiler script will replace null with a JSON string
     COMPILER_AUDIO = null, // Compiler script will replace null with a JSON string
 
@@ -103,7 +103,7 @@ var cp = cp || {};
             }
         };
 
-        if (COMPILER_LOADING !== true) {
+        if (COMPILER_IMG === null) {
             _createXmlHttp('include/image-files.php', callback);
         } else {
             callback(COMPILER_IMG);
@@ -130,7 +130,7 @@ var cp = cp || {};
             }
         };
 
-        if (COMPILER_LOADING !== true) {
+        if (COMPILER_AUDIO === null) {
             _createXmlHttp('include/sound-files.php', callback);
         } else {
             callback(COMPILER_AUDIO);
@@ -146,7 +146,7 @@ var cp = cp || {};
         imgUrl: 'images/', // Default image loading location
 
         init: function() {
-            if (!COMPILER_LOADING) {
+            if (!COMPILER_AUDIO || !COMPILER_IMG) {
                 // Begin loading files
                 _getFiles();
             }
