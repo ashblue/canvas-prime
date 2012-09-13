@@ -103,24 +103,30 @@ var _private = {
     },
 
     /**
+     * Replace string between two points
+     * @param {string} haystack A bunch of text to search through
+     * @param {string} start String to start the replace process
+     * @param {string} end String to end the replace process
+     * @param {string} replace String that replaces the found string
+     * @returns {string} A new string with the replaced content
+     * @todo Make sure it removes all instances of the strings in the haystack
+     */
+    setStringBetween: function (haystack, start, end, replace) {
+        var indexStart = haystack.indexOf(start);
+        var indexEnd = haystack.indexOf(end, indexStart);
+
+        return (haystack.substring(0, indexStart) + replace + haystack.substring(indexEnd + end.length));
+    },
+
+    /**
      * Gets a string between two points inside a string
+     * @todo Make sure it returns all instances of the strings in the haystack
      */
     getStringBetween: function (haystack, start, end) {
         var indexStart = haystack.indexOf(start) + start.length;
         var indexEnd = haystack.indexOf(end, indexStart);
 
         return haystack.substring(indexStart, indexEnd);
-    },
-
-    /**
-     * Removes a string from a haystack and returns the haystack
-     * @todo Make sure it removes all instances of the strings in the haystack
-     */
-    removeStringBetween: function (haystack, start, end) {
-        var indexStart = haystack.indexOf(start);
-        var indexEnd = haystack.indexOf(end, indexStart);
-
-        return (haystack.substring(0, indexStart) + haystack.substring(indexEnd + end.length));
     }
 };
 
@@ -133,6 +139,8 @@ var _private = {
 var compiler = {
     /**
      * @todo Break into multiple methods
+     * @todo Needs private variable usage to make editing data easier
+     * @todo Should zip everything, current just builds a folder
      */
     init: function () {
         // Compile JavaScript engine
@@ -158,21 +166,23 @@ var compiler = {
         });
 
         // Get setup.js and find cp.load.loadFiles. Comment it out, then put in jsOutput
-        jsOutput += _private.removeStringBetween(userJS, 'cp.load.loadFiles = ', ';');
+        jsOutput += _private.setStringBetween(userJS, 'cp.load.loadFiles = ', ';', '');
 
-        // Uglify jsOutput
-        // Customization options https://github.com/mishoo/UglifyJS
+        // Uglify jsOutput, options https://github.com/mishoo/UglifyJS
         var ast = _jsp.parse(jsOutput);
         ast = _pro.ast_mangle(ast);
         ast = _pro.ast_squeeze(ast);
         jsOutput = _pro.gen_code(ast);
 
         // Get a copy of index.html and replace the proper contents in var htmlOutput
+        var indexFile = _private.setStringBetween(_fs.readFileSync('index.html', 'utf8'), '<!-- COMPILER_REPLACE -->', '<!-- END_COMPILER_REPLACE -->', '<script type="text/javascript" src="js/all.js"></script>');
 
-        // Put everything into a zip file
+        // Put everything into a build folder
+        // recursively delete a build folder if it already exists or create a new one
+        // recursively copy folders and files from a private array
 
-        // Cleanup old data
-
+        // Add in the newly created files
+        _private.setNewFile('test.html', indexFile);
         _private.setNewFile('all.js', jsOutput);
     }
 };
