@@ -1,3 +1,9 @@
+// Load in dependencies
+var _fs = require('fs');
+var _express = require('express');
+var _jsp = require('uglify-js').parser;
+var _pro = require('uglify-js').uglify;
+
 /** @type {string} Folder to build from */
 var _jsRoot = 'js/';
 
@@ -7,14 +13,20 @@ var _jsBuildOrder = [
     _jsRoot + 'engine'
 ];
 
-var _fs = require('fs');
+/** @type {string} Root location for the compiler dump */
+var _buildRoot = 'build';
 
-var _express = require('express');
+/** @type {array} Select data to copy and clone from the user's existing data */
+var _cloneData = [
+    'audio',
+    'images',
+    'style'
+];
 
-var _jsp = require('uglify-js').parser;
-
-var _pro = require('uglify-js').uglify;
-
+/**
+ * @todo Create a separate string module
+ * @todo Craete a separate file module
+ */
 var _private = {
     /**
      * Combines JavaScript files and returns a string
@@ -127,6 +139,73 @@ var _private = {
         var indexEnd = haystack.indexOf(end, indexStart);
 
         return haystack.substring(indexStart, indexEnd);
+    },
+
+    /**
+     * Sets a folder and recursively delets contents if they pre-exist
+     * @todo Crashes if no folder exists, need to be fixed, currently using workaround
+     */
+    //setFolder: function (loc) {
+    //    // Create the folder
+    //    _fs.mkdir(loc);
+    //
+    //    // Check folder for contents
+    //    this.setRecursiveDelete(loc);
+    //
+    //    // Create the folder
+    //    _fs.mkdir(loc);
+    //
+    //    return;
+    //},
+
+    /**
+     * Recursively deletes all data
+     * @param {string} loc Location to begin the recursive delete, starts from the
+     * root
+     * @todo Currently leaves behind old folders, should not be the case
+     */
+    setRecursiveDelete: function (loc) {
+        try {
+            var contents = _fs.readdirSync(loc);
+            contents.forEach(function(file) {
+                if (_fs.statSync(loc + '/' + file).isDirectory()) {
+                    _private.setRecursiveDelete(loc + '/' + file);
+                } else {
+                    _fs.unlinkSync(loc + '/' + file);
+                }
+                // Contents found, recursively delete all content
+
+            });
+        } catch (e) {
+
+        }
+    },
+
+    /**
+     * Recursively copies a folder to a specific destination
+     * @param {array} folder An array of strings represting folders. All paths should
+     * be relative to the root
+     * @param {string} dest Write location for copied data and folders, should be
+     * relative to the root
+     * @returns {undefined}
+     */
+    setRecursiveCopy: function (folders, dest) {
+        var readData, readDataItem;
+        folders.forEach(function (loc) {
+            _fs.mkdir(dest + '/' + loc);
+            readData = _fs.readdirSync(loc);
+            readData.forEach(function (item) {
+                console.log(loc, item);
+                if (_fs.statSync(loc + '/' + item).isDirectory()) {
+                    _private.setRecursiveCopy([loc + '/' + item], dest);
+                } else {
+                    readDataItem = _fs.readFileSync(loc + '/' + item);
+                    _fs.writeFileSync(dest + '/'+ loc + '/' + item, readDataItem);
+                }
+            });
+        });
+
+        return;
     }
 };
 
@@ -177,21 +256,19 @@ var compiler = {
         // Get a copy of index.html and replace the proper contents in var htmlOutput
         var indexFile = _private.setStringBetween(_fs.readFileSync('index.html', 'utf8'), '<!-- COMPILER_REPLACE -->', '<!-- END_COMPILER_REPLACE -->', '<script type="text/javascript" src="js/all.js"></script>');
 
-        // Put everything into a build folder
-        // recursively delete a build folder if it already exists or create a new one
+        // Put everything into a build folder and delete if it already exists
+        _fs.mkdir('build');
+        _private.setRecursiveDelete('build');
+        //_fs.mkdir('build');
+
         // recursively copy folders and files from a private array
+        _private.setRecursiveCopy(_cloneData, 'build');
 
         // Add in the newly created files
-        _private.setNewFile('test.html', indexFile);
-        _private.setNewFile('all.js', jsOutput);
+        _private.setNewFile('build/index.html', indexFile);
+        _fs.mkdir('build/js');
+        _private.setNewFile('build/js/all.js', jsOutput);
     }
 };
 
 compiler.init();
-
-//exports.jsFile = compiler.init();
-
-// Compile dependencies
-// Compile the engine
-// Get JSON string for images and replace COMPILER_IMG's null value with it
-// Get JSON string for audio and replace COMPILER_AUDIO's null value with it
