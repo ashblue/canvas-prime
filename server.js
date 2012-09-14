@@ -7,11 +7,26 @@
  */
 var SELF = null;
 
+var _files = require('./compiler/helpers/files.js').files;
+
+/** @type {string} Folder to build from */
+var _jsRoot = 'js/';
+
+/** @type {array} Order to load and compile items */
+var _jsBuildOrder = [
+    _jsRoot + 'depen',
+    _jsRoot + 'engine'
+];
+
+/**
+ * @todo general cleanup of methods
+ * @todo use of private vars
+ */
 var server = {
     // Retrieve necessary node components
     fs: require('fs'),
     express: require('express'),
-    compiler: require('./compiler/controller.js'),
+    compiler: require('./compiler/controller.js').compiler,
 
     /**
      * Creates the server with basic settings
@@ -24,8 +39,6 @@ var server = {
 
         this
             .setFolders()
-            .setRoot('index.html')
-            .setCombinedJS('js/engine', '/js/engine/all.js')
             .setReturnJSON('images', ['.jpg', '.png', '.gif'], '/include/image-files.php')
             .getAudio('audio', '/include/sound-files.php');
 
@@ -38,27 +51,36 @@ var server = {
      * Create static folders
      * @link http://expressjs.com/api.html#app.configure
      * @todo Looks like the first parameter can be removed from server.use
-     * @todo Add switches for different production environments, caching, no-caching, ect.
      * @returns {self}
+     * @example NODE_EVN=production node server.js
      */
     setFolders: function () {
+        // Activates production mode so you can demo the compiled code
+        this.app.configure('production', function () {
+            console.log('production');
+
+            SELF.app.get('/js/all.js', function (req, res) {
+                var compiledJS = SELF.compiler.createJS();
+                res.header('Content-Type', 'application/javascript');
+                res.send(compiledJS);
+            });
+
+            SELF.app.get('/', function (req, res) {
+                var compiledHTML = SELF.compiler.createIndex();
+                res.header('Content-Type', 'text/html');
+                res.send(compiledHTML);
+            });
+        });
+
+        // Settings will be overriden by production if activated
         this.app.configure(function () {
             SELF.app.use('/style', SELF.express.static(__dirname + '/style'));
             SELF.app.use('/js', SELF.express.static(__dirname + '/js'));
             SELF.app.use('/images', SELF.express.static(__dirname + '/images'));
             SELF.app.use('/audio', SELF.express.static(__dirname + '/audio'));
+            SELF.setCombinedJS('js/engine', '/js/engine/all.js');
+            SELF.setRoot('index.html');
         });
-
-        // Static content for development only environment, includes caching
-        // Usually needed for devs working on the engine
-        //app.configure('cached', function () {
-        //
-        //});
-
-        // Static content for production only environment
-        //app.configure('production', function () {
-        //
-        //});
 
         return this;
     },
@@ -117,11 +139,12 @@ var server = {
 
         //console.log(filteredContents);
         this.app.get(request, function (req, res) {
-            var compiledJS = '';
-
-            filteredContents.forEach(function (value) {
-                compiledJS += SELF.fs.readFileSync(folder + '/' + value);
-            });
+            var compiledJS = _files.getCombinedFiles(_jsBuildOrder, ['js']);
+            //var compiledJS = '';
+            //
+            //filteredContents.forEach(function (value) {
+            //    compiledJS += SELF.fs.readFileSync(folder + '/' + value);
+            //});
 
             res.header('Content-Type', 'application/javascript');
             res.send(compiledJS);
