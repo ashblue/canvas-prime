@@ -8,10 +8,10 @@ var cp = cp || {};
 (function (cp) {
     cp.camera = {
         /** @type {number} X position of the camera form the top left */
-        x: 10,
+        x: 0,
 
         /** @type {number} Y position of the camera form the top left */
-        y: 10,
+        y: 0,
 
         /**
          * Offset to clip visible items so you can better control what does
@@ -76,7 +76,7 @@ var cp = cp || {};
          */
         restoreViewport: function () {
             cp.ctx.restore();
-            
+
             return;
         }
     };

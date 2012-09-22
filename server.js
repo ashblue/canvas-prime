@@ -7,6 +7,10 @@
  */
 var SELF = null;
 
+/** @type {number} Port to run the application from */
+var PORT = 8080;
+
+/** @type {object} Loads in file helper script for combining files */
 var _files = require('./compiler/helpers/files.js').files;
 
 /** @type {string} Folder to build from */
@@ -42,7 +46,8 @@ var server = {
             .setReturnJSON('images', ['.jpg', '.png', '.gif'], '/include/image-files.php')
             .getAudio('audio', '/include/sound-files.php');
 
-        this.app.listen(8080);
+        this.app.listen(PORT);
+        console.log('listening on ' + PORT);
 
         return;
     },
