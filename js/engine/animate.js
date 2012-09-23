@@ -124,12 +124,16 @@ var cp = cp || {};
                 // dump image x and y data fur current frame
                 var img = this.get();
 
-                // Set alpha
-                cp.ctx.globalAlpha = obj.alpha;
+
 
                 // Canvas location with offset
                 this.canvasX = obj.x + obj.offset.x;
                 this.canvasY = obj.y + obj.offset.y;
+
+                cp.ctx.save();
+
+                // Set alpha
+                cp.ctx.globalAlpha = obj.alpha;
 
                 // Runs rotation if rotate is set
                 this.rotateStart(obj);
@@ -152,28 +156,39 @@ var cp = cp || {};
                     );
                 }
 
-                cp.ctx.globalAlpha = 1;
+                cp.ctx.restore();
 
-                // Ends flip if set
-                this.flipEnd(obj);
-
-                // Ends rotation if set
-                this.rotateEnd(obj);
+                //cp.ctx.globalAlpha = 1;
+                //
+                //// Ends flip if set
+                //this.flipEnd(obj);
+                //
+                //// Ends rotation if set
+                //this.rotateEnd(obj);
             },
 
             // Note: Should take a point of rotation, currently sets it to the middle
             rotateStart: function(obj) {
                 if (obj.angle) {
-                    // Translate to the object's center (x + (width / 2), y + (height / 2)) and rotate it
-                    cp.ctx.translate(
-                        this.canvasX + (this.sheet.frameW / 2),
-                        this.canvasY + (this.sheet.frameH / 2));
+                    if (!obj.angleAxis) {
+                        // Translate to the object's center (x + (width / 2), y + (height / 2)) and rotate it
+                        cp.ctx.translate(this.canvasX + (this.sheet.frameW / 2), this.canvasY + (this.sheet.frameH / 2));
+                    } else {
+                        cp.ctx.translate(obj.angleAxis.x, obj.angleAxis.y);
+                    }
 
                     cp.ctx.rotate(Math.PI / 180 * obj.angle);
 
                     // Alter the drawImage with (x, y, width, height) (-width / 2, -height / 2, width, height)
-                    this.canvasX = - this.sheet.frameW / 2;
-                    this.canvasY = - this.sheet.frameH / 2;
+                    if (!obj.angleAxis) {
+                        cp.ctx.translate(-(this.canvasX + (this.sheet.frameW / 2)), -(this.canvasY + (this.sheet.frameH / 2)));
+                        //this.canvasX = -this.sheet.frameW / 2;
+                        //this.canvasY = -this.sheet.frameH / 2;
+                    } else {
+                        cp.ctx.translate(-obj.angleAxis.x, -obj.angleAxis.y);
+                        //this.canvasX = -obj.angleAxis.x / 2;
+                        //this.canvasY = -obj.angleAxis.y / 2;
+                    }
                 }
             },
 

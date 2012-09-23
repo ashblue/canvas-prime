@@ -6,21 +6,18 @@
 
     // List of scripts to load from js/objects
     cp.load.loadFiles = [
+        'parachutes/player',
         'parachutes/building',
-        'parachutes/crate'
+        'parachutes/crate',
+        'parachutes/hud',
+        'anim-test'
     ];
     cp.debug.active = true;
     cp.debug.showCollisions = true;
 
     // init(width, height, run onLoad function)
     cp.core.init(700, 500, function () {
-        // Create buildings
-        cp.game.spawn('Building', 20);
-        cp.game.spawn('Building', 165);
-        cp.game.spawn('Building', 410);
-        cp.game.spawn('Building', 555);
-
-        // Create enemies
-        cp.game.spawn('SpawnCrates');
+        cp.game.spawn('Hud');
+        //cp.game.spawn('AnimTest');
     });
 }(cp));

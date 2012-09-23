@@ -37,6 +37,36 @@ var cp = cp || {};
             }
 
             return Math.round(total * Math.pow(10, round)) / Math.pow(10, round);
+        },
+
+        angleBetweenPoints: function (start, end) {
+            return Math.atan2(-(end.y - start.y), end.x - start.x);
+        },
+
+        /**
+         * Convert radians to degree
+         * @link http://stackoverflow.com/questions/135909/is-there-a-built-in-method-for-converting-radians-to-degrees
+         * @param {number} rad Radians to convert
+         * @returns {number} 0 to 360 degrees
+         */
+        radiansToDegrees: function (rad) {
+            return rad * (180 / Math.PI);
+        },
+
+        /**
+         * Convert degrees to radians
+         * @param {number} degrees 0 to 360 degrees
+         * @returns {number} Numerical value of radians
+         */
+        degreesToRadian: function (degrees) {
+            return degrees * (Math.PI / 180);
+        },
+
+        movePointAtAngle: function (point, angle, distance) {
+            return {
+                x: point.x - (Math.sin(angle * Math.PI / 180) * distance),
+                y: point.y + (Math.cos(angle * Math.PI / 180) * distance)
+            };
         }
     };
 }(cp));

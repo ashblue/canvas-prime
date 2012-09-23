@@ -1,4 +1,6 @@
 (function (cp) {
+    var _buildingCount = 0;
+
     var _private = {
         shrinkBuilding: function (height) {
             return height - 20;
@@ -18,6 +20,7 @@
         init: function (x) {
             this.x = x;
             this.y = _private.setHeight(this.height);
+            _buildingCount += 1;
         },
 
         draw: function () {
@@ -34,6 +37,17 @@
                 this.height = _private.shrinkBuilding(this.height);
                 this.y = _private.setHeight(this.height);
             }
+        },
+
+        kill: function () {
+            _buildingCount -= 1;
+
+            if (_buildingCount === 0) {
+                cp.game.entityGetVal('name', 'hud')[0].setText('Game Over');
+                cp.input.unbind();
+            }
+
+            this._super();
         }
     });
 }(cp));
