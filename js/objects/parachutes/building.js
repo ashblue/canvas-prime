@@ -1,11 +1,18 @@
 (function (cp) {
+    /** @type {number} Declares sizes for different states of the buildings */
     var HEIGHT_DEFAULT = 140;
     var HEIGHT_DAMAGED = 96;
     var HEIGHT_VERY_DAMAGED = 68;
 
+    /** @type {number} Tracks current number of existing buildings */
     var _buildingCount = 0;
 
     var _private = {
+        /**
+         * Retrieves the proper animation based upon remaining hp
+         * @param {number} hp Current health of a building
+         * @returns {string} Current animation name
+         */
         getAnimation: function (hp) {
             switch (hp) {
             case 2:
@@ -17,6 +24,11 @@
             }
         },
 
+        /**
+         * Determines the offset of the building based upo its current hp
+         * @param {number} hp Current health of a building
+         * @returns {number} New building y offset
+         */
         getOffsetY: function (hp) {
             switch (hp) {
             case 2:
@@ -28,6 +40,11 @@
             }
         },
 
+        /**
+         * Determine height of the building based upon hp
+         * @param {number} hp Current health of a building
+         * @returns {number} New height
+         */
         getHeight: function (hp) {
             switch (hp) {
             case 2:
@@ -39,11 +56,18 @@
             }
         },
 
+        /**
+         * Calculates y of a building based upon its current height (relative
+         * to the Canvas viweport size)
+         * @param {number} height Height of the building
+         * @requires {number} Calculated height
+         */
         getY: function (height) {
             return cp.core.canvasHeight - height;
         }
     };
 
+    /** @type {class} Basic building element that the player must defend */
     cp.template.Building = cp.template.Entity.extend({
         type: 'a',
         width: 124,
@@ -69,6 +93,7 @@
         collide: function (object) {
             this.hp -= 1;
 
+            // Determine wheterh the building should be destroyed or swap its animation
             if (this.hp < 1) {
                 this.kill();
             } else {
@@ -82,6 +107,7 @@
         kill: function () {
             _buildingCount -= 1;
 
+            // No buildings left? End the game
             if (_buildingCount === 0) {
                 cp.game.entityGetVal('name', 'hud')[0].setText('Game Over');
                 cp.input.unbind();

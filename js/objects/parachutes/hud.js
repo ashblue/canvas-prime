@@ -1,25 +1,34 @@
 (function (cp) {
-    var _debug = false;
-
+    /** @type {number} Current score */
     var _score = 0;
 
-    var _textCurrent = 'Click To Shoot';
+    /** @type {string} Introduction message */
+    var _textCurrent = 'Click to shoot, click again to explode';
 
+    /** @type {number} Cached value of centered text */
     var _textCenterX = cp.core.canvasWidth / 2;
-
     var _textCenterY = cp.core.canvasHeight / 2;
 
     var _private = {
+        /**
+         * Binds DOM logic
+         */
         bind: function () {
             cp.ctx.canvas.addEventListener('click', _events.clickCanvas);
         },
 
+        /**
+         * Unbinds all DOM logic
+         */
         unbind: function () {
             cp.ctx.canvas.removeEventListener('click', _events.clickCanvas);
         }
     };
 
     var _events = {
+        /**
+         * Boots up the game on mouse click
+         */
         clickCanvas: function () {
             // Create buildings
             cp.game.spawn('Building', 20);
@@ -46,12 +55,8 @@
     cp.template.Hud = cp.template.Entity.extend({
         name: 'hud',
 
-        init: function (x) {
-            if (!_debug) {
-                _private.bind();
-            } else {
-                _events.clickCanvas();
-            }
+        init: function () {
+            _private.bind();
         },
 
         draw: function () {
