@@ -1,10 +1,9 @@
 (function (cp) {
-    /*------------
-    Running The Game
-    -----------*/
-    console.log(cp);
+    // Debugging tools
+    //cp.debug.active = true;
+    //cp.debug.showCollisions = true;
 
-    // List of scripts to load from js/objects
+    // List of scripts to load relative to js/objects
     cp.load.loadFiles = [
         'parachutes/player',
         'parachutes/building',
@@ -12,12 +11,9 @@
         'parachutes/hud',
         'anim-test'
     ];
-    cp.debug.active = true;
-    cp.debug.showCollisions = true;
 
-    // init(width, height, run onLoad function)
+    // Width, height, and game run logic
     cp.core.init(700, 500, function () {
         cp.game.spawn('Hud');
-        //cp.game.spawn('AnimTest');
     });
 }(cp));

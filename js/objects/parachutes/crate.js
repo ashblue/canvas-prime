@@ -10,25 +10,31 @@
         y: -SIZE,
         width: SIZE,
         height: SIZE,
+        offsetX: -24,
+        offsetY: -60,
 
         init: function () {
             this.x = cp.math.random(0, cp.core.canvasWidth - SIZE);
 
-
+            this.animSheet = new cp.animate.sheet('crate.png', 90, 102);
+            this.stillCrate = new cp.animate.cycle(this.animSheet, 1, [0]);
+            this.animSet = this.stillCrate;
         },
 
         update: function () {
+            this._super();
+
             this.y += 1;
 
-            if (this.y > cp.core.canvasHeight) {
+            if (this.y > cp.core.canvasHeight + this.animSheet.frameH) {
                 this.kill();
             }
         },
 
-        draw: function () {
-            cp.ctx.fillStyle = '#000';
-            cp.ctx.fillRect(this.x, this.y, this.width, this.height);
-        },
+        //draw: function () {
+        //    cp.ctx.fillStyle = '#000';
+        //    cp.ctx.fillRect(this.x, this.y, this.width, this.height);
+        //},
 
         collide: function (object) {
             this.kill();

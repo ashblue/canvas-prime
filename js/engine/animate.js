@@ -127,8 +127,8 @@ var cp = cp || {};
 
 
                 // Canvas location with offset
-                this.canvasX = obj.x + obj.offset.x;
-                this.canvasY = obj.y + obj.offset.y;
+                this.canvasX = obj.x + obj.offsetX;
+                this.canvasY = obj.y + obj.offsetY;
 
                 cp.ctx.save();
 
@@ -199,8 +199,8 @@ var cp = cp || {};
 
                     // Reverse the tanslate
                     cp.ctx.translate(
-                        (obj.x + obj.offset.x + (this.sheet.frameW / 2)) * -1,
-                        (obj.y + obj.offset.y + (this.sheet.frameH / 2)) * -1);
+                        (obj.x + obj.offsetX + (this.sheet.frameW / 2)) * -1,
+                        (obj.y + obj.offsetY + (this.sheet.frameH / 2)) * -1);
                 }
             },
 

@@ -1,9 +1,9 @@
 (function (cp) {
-    var _debug = true;
+    var _debug = false;
 
     var _score = 0;
 
-    var _textCurrent = 'Click To Start';
+    var _textCurrent = 'Click To Shoot';
 
     var _textCenterX = cp.core.canvasWidth / 2;
 
@@ -21,14 +21,15 @@
 
     var _events = {
         clickCanvas: function () {
-            // Create player
-            cp.game.spawn('Player');
-
             // Create buildings
             cp.game.spawn('Building', 20);
             cp.game.spawn('Building', 165);
             cp.game.spawn('Building', 410);
             cp.game.spawn('Building', 555);
+
+            // Create player
+            cp.game.spawn('PlayerCannon');
+            cp.game.spawn('PlayerTank');
 
             // Create enemies
             cp.game.spawn('SpawnCrates');
@@ -54,12 +55,18 @@
         },
 
         draw: function () {
+            // Draw background
+            cp.ctx.fillStyle = '#29ABE2';
+            cp.ctx.fillRect(0, 0, cp.core.canvasWidth, cp.core.canvasHeight);
+
+            // Draw score text
             cp.ctx.fillStyle = '#111';
             cp.ctx.textAlign = 'left';
             cp.ctx.textBaseline = 'top';
             cp.ctx.font = '12px helvetica, arial';
             cp.ctx.fillText('Score: ' + _score, 5, 5);
 
+            // Draw message text if available
             if (_textCurrent) {
                 cp.ctx.textAlign = 'center';
                 cp.ctx.textBaseline = 'top';
