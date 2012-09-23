@@ -6,8 +6,8 @@
     var _textCurrent = 'Click to shoot, click again to explode';
 
     /** @type {number} Cached value of centered text */
-    var _textCenterX = cp.core.canvasWidth / 2;
-    var _textCenterY = cp.core.canvasHeight / 2;
+    var _textCenterX = null;
+    var _textCenterY = null;
 
     var _private = {
         /**
@@ -57,6 +57,9 @@
 
         init: function () {
             _private.bind();
+
+            _textCenterX = cp.core.canvasWidth / 2;
+            _textCenterY = cp.core.canvasHeight / 2;
         },
 
         draw: function () {
@@ -64,20 +67,20 @@
             cp.ctx.fillStyle = '#29ABE2';
             cp.ctx.fillRect(0, 0, cp.core.canvasWidth, cp.core.canvasHeight);
 
-            // Draw score text
+            // Draw message text if available
             cp.ctx.fillStyle = '#111';
+            if (_textCurrent) {
+                cp.ctx.textAlign = 'center';
+                cp.ctx.textBaseline = 'middle';
+                cp.ctx.font = '40px helvetica, arial';
+                cp.ctx.fillText(_textCurrent, _textCenterX, _textCenterY);
+            }
+
+            // Draw score text
             cp.ctx.textAlign = 'left';
             cp.ctx.textBaseline = 'top';
             cp.ctx.font = '12px helvetica, arial';
             cp.ctx.fillText('Score: ' + _score, 5, 5);
-
-            // Draw message text if available
-            if (_textCurrent) {
-                cp.ctx.textAlign = 'center';
-                cp.ctx.textBaseline = 'top';
-                cp.ctx.font = '40px helvetica, arial';
-                cp.ctx.fillText(_textCurrent, _textCenterX, _textCenterY);
-            }
         },
 
         setText: function (text) {
