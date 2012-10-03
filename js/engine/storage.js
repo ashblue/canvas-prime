@@ -43,38 +43,40 @@ TODO: Add a cached version of storage as JSON if its faster to access, example:
 var cp = cp || {};
 
 (function(cp) {
-    var _support = function() {
+    var _support = function () {
         try {
             cp.storage.save('test', 'asdf');
             cp.storage.remove('test');
             return true;
-        } catch(e) {
+        } catch (e) {
             return false;
         }
     };
 
     cp.storage = {
-        init: function() {
-            if (! _support) {
-                return alert('Local storage is broken or disabled, please enable it to continue.');
+        init: function () {
+            if (!_support) {
+                alert('Local storage is broken or disabled, please enable it to continue.');
             }
+
+            return this;
         },
 
         // Saves the passed parameter with a key or tag reference
-        save: function(key, value) {
+        save: function (key, value) {
             // Set local storage data internally
             sessionStorage.setItem(key, value);
         },
 
         // Gets select data, should be using build to retrieve
-        get: function(key) {
+        get: function (key) {
             var result = sessionStorage.getItem(key);
 
             return result;
         },
 
         // Removes the passed paramater
-        remove: function(key) {
+        remove: function (key) {
             // Set local data
             sessionStorage.removeItem(key);
         }
