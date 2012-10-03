@@ -5,8 +5,8 @@ define(
         var _public = {
             support: function () {
                 try {
-                    cp.storage.save('test', 'asdf');
-                    cp.storage.remove('test');
+                    storage.save('test', 'asdf');
+                    storage.remove('test');
                     return true;
                 } catch (e) {
                     return false;
