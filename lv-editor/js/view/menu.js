@@ -14,16 +14,29 @@ define(
                 // Create list item
                 li = document.createElement('li');
                 li.classList.add('menu-item');
-                li.innerHTML = menuList[i].title;
 
                 // Add action if available
                 if (menuList[i].action) {
                     li.dataset.action = menuList[i].action;
+
+                // Add module if available
+                } else if (menuList[i].module) {
+                    li.dataset.module = menuList[i].module;
                 }
 
                 // Add id if available
                 if (menuList[i].id) {
                     li.id = menuList[i].id;
+                }
+
+                // Add link if available
+                if (menuList[i].link) {
+                    link = document.createElement('a');
+                    link.href = menuList[i].link;
+                    link.innerHTML = menuList[i].title;
+                    li.appendChild(link);
+                } else {
+                    li.innerHTML = menuList[i].title;
                 }
 
                 // Mark the last link with a class

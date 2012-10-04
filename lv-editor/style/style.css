@@ -1,0 +1,72 @@
+/**
+ * Custom CSS reset
+ */
+ul, li, a, body {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/**
+ * Layout
+ */
+#menu {
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
+
+/**
+ * Module rules
+ * Desc: Component of a page
+ */
+.tier1 > .menu-item {
+    display: block;
+    float: left;
+    cursor: pointer;
+    padding: 6px 16px;
+    font-size: 14px;
+    position: relative;
+}
+
+.tier2 {
+    display: none;
+    position: absolute;
+    top: 28px;
+    left: 0;
+}
+
+/**
+ * State rules
+ * Desc: Overrides all other styles
+ */
+.menu-children:hover > .menu-list {
+    display: block;
+}
+
+/**
+ * Theme rules
+ * Colors, fonts, images, ect
+ */
+#menu {
+    background: #454545;
+}
+
+.menu-item {
+    font-family: arial, helvetica;
+    color: #dbdbdb;
+}
+
+.tier2 {
+    background: #aaa;
+}
+
+/**
+ * State change rules
+ */
