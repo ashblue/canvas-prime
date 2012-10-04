@@ -29,10 +29,15 @@ a {
 .tier1 > .menu-item {
     display: block;
     float: left;
-    cursor: pointer;
     padding: 6px 16px;
     font-size: 14px;
     position: relative;
+    border-right: 1px solid #545454;
+    background: url('images/border.png') no-repeat top right;
+}
+
+.menu-item[data-action] {
+    cursor: pointer;
 }
 
 .tier2 {
@@ -40,6 +45,7 @@ a {
     position: absolute;
     top: 28px;
     left: 0;
+    min-width: 150px;
 }
 
 /**
@@ -56,6 +62,7 @@ a {
  */
 #menu {
     background: #454545;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.63);
 }
 
 .menu-item {
