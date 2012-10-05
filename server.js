@@ -39,7 +39,9 @@ var server = {
     init: function () {
         SELF = this;
 
+
         this.app = this.express.createServer();
+        this.app.use(this.express.bodyParser());
 
         this
             .setFolders()
@@ -48,6 +50,12 @@ var server = {
 
         this.app.listen(PORT);
         console.log('listening on ' + PORT);
+
+        // NOTE: TEST -> DELTE ME
+        this.app.post('/save', function (req, res) {
+            console.log(req.body);
+            res.send('i got it');
+        });
 
         return;
     },
@@ -86,6 +94,8 @@ var server = {
             SELF.setCombinedJS('js/engine', '/js/engine/all.js');
             SELF.setRoot('index.html');
         });
+
+        SELF.app.use('/lv-editor', SELF.express.static(__dirname + '/lv-editor'));
 
         return this;
     },

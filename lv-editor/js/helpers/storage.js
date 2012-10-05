@@ -2,7 +2,7 @@ define(
     function () {
         var SELF = null;
 
-        var _public = {
+        var _private = {
             support: function () {
                 try {
                     storage.save('test', 'asdf');
@@ -22,7 +22,7 @@ define(
 
                 SELF = this;
 
-                if (!_public.support()) {
+                if (!_private.support()) {
                     alert('Local storage is broken or disabled, please enable it to continue.');
                 }
 
