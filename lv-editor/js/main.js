@@ -1,11 +1,16 @@
 define(
     [
         'controller/menu',
-        'controller/forms'
+        'controller/actions'
     ],
-    function () {
+    function (menu, actions) {
         // Create namespace
-        var cp = {};
-        console.log('im running');
+        var LV = {};
+
+        // Setup the menu
+        menu.init();
+
+        // Apply actions
+        actions.init();
     }
 );

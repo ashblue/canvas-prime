@@ -8,6 +8,9 @@ define(
         /** @type {object} Cached menu */
         var MENU = document.getElementById('menu');
 
+        /** @type {array} Cache of all action menu items */
+        var ACTIONS = document.querySelectorAll('[data-action]');
+
         /** @type {object} Cached copy of recent menu items */
         var MENU_RECENT = null;
 
@@ -16,7 +19,9 @@ define(
                 // Build out the menu
                 MENU.appendChild(MenuBuild(MenuData, 1));
 
-                // Store Menu Recent
+                // Apply actions
+
+                // Setup menu recent items
 
                 // Output current recent menu
             },
@@ -26,6 +31,6 @@ define(
             }
         };
 
-        return menu.init();
+        return menu;
     }
 );
