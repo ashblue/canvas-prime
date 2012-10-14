@@ -27,7 +27,6 @@ define(
                     if (actionList[currentAction]) {
                         ACTIONS[i].addEventListener('click', actionList[currentAction]);
                     }
-
                 }
             }
         };

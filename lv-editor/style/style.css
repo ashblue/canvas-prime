@@ -34,6 +34,12 @@ label {
 }
 
 #modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 760px;
+    padding: 20px;
+    margin-left: -400px;
     background: #fff;
 }
 

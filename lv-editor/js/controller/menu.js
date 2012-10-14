@@ -1,10 +1,10 @@
 define(
     [
+        'controller/actions',
         'model/menu',
-        'view/menu',
-        'helpers/storage'
+        'view/menu'
     ],
-    function (MenuData, MenuBuild) {
+    function (actions, MenuData, MenuBuild) {
         /** @type {object} Cached menu */
         var MENU = document.getElementById('menu');
 
@@ -20,6 +20,7 @@ define(
                 MENU.appendChild(MenuBuild(MenuData, 1));
 
                 // Apply actions
+                actions.init();
 
                 // Setup menu recent items
 

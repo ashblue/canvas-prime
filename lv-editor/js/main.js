@@ -1,16 +1,16 @@
 define(
     [
         'controller/menu',
-        'controller/actions'
+        'controller/modal'
     ],
-    function (menu, actions) {
+    function (menu, modal) {
         // Create namespace
-        var LV = {};
+        window.LV = {};
 
         // Setup the menu
         menu.init();
 
         // Apply actions
-        actions.init();
+        modal.init();
     }
 );
