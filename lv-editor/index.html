@@ -14,24 +14,52 @@
     <div id="modal" class="hide">
         <div id="modal-content">
             <div id="modal-new-level" class="hide">
-                <h1 class="title">New Level</h1>
+                <h1 class="modal-title">New Level</h1>
 
-                <form action="">
-                    <ul>
+                <ul>
+                    <li>
+                        <label class="text medium">Name</label>
+                        <input id="new-level-name" name="name" class="input" type="text" value="">
+                    </li>
+                    <li>
+                        <label class="text medium">Pixels Per Tile</label>
+                        <input id="new-level-tile-size" name="tileSize" class="input" type="text" value="">
+                        px
+                    </li>
+                    <li>
+                        <label class="text medium">Horizontal and Vertical Tile Count</label>
+                        <input id="new-level-tile-horizontal" name="tileSize" class="input" type="text" value="">
+                        x
+                        <input id="new-level-tile-vertical" name="tileSize" class="input" type="text" value="">
+                    </li>
+                    <li>
+                        <button data-form="createLevel">Create Level</button>
+                    </li>
+                </ul>
+            </div><!-- #modal-new-level -->
+
+            <div id="modal-save" class="hide">
+                <h1 class="modal-title">Save As</h1>
+
+                <form>
+                    <ul id="modal-save-location">
                         <li>
+                            <label class="text medium">Location</label>
+                            <!-- Echo list of saves and save folders here with select box -->
+                            <button data-form="createFolder">Add Folder</button>
+                        </li>
+                        <li>
+                            <!-- Pre populate with session name -->
                             <label class="text medium">Name</label>
-                            <input name="title" class="input" type="text" value="">
+                            <input id="modal-save-name" type="text" value="">
                         </li>
                         <li>
-                            <label class="text medium">Pixels Per Tile</label>
-                            <input name="tileSize" class="input" type="text" value="">
-                        </li>
-                        <li>
-                            <span data-form="createLevel" class="btn">Create Level</span>
+                            <button data-form="createFolder">Save</button>
                         </li>
                     </ul>
+
                 </form>
-            </div><!-- #modal-new-level -->
+            </div><!-- #modal-save-as -->
         </div>
     </div>
 
