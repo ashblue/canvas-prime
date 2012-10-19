@@ -1,6 +1,8 @@
 /**
  * Handles applying actions
- * @todo File name not accurate
+ * @todo Should be part of the menu instead
+ * @todo All actions should be assembled into a model called action-collection
+ * and a model for action should be created
  */
 define(
     [

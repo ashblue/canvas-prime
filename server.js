@@ -11,7 +11,10 @@ var SELF = null;
 var PORT = 8080;
 
 /** @type {object} Loads in file helper script for combining files */
-var _files = require('./compiler/helpers/files.js').files;
+var _files = require('files.js').files;
+
+/** @type {object} Loads in script for save actions */
+var _save = require('save.js');
 
 /** @type {string} Folder to build from */
 var _jsRoot = 'js/';
@@ -39,13 +42,15 @@ var server = {
     init: function () {
         SELF = this;
 
-
         this.app = this.express.createServer();
         this.app.use(this.express.bodyParser());
 
         this
             .setFolders()
             .setReturnJSON('images', ['.jpg', '.png', '.gif'], '/include/image-files.php')
+            .setAjaxResponse('/lv-editor/saves.json', function () {
+                return _files.getFilesRecursive('./lv-editor/saves');
+            }, 'application/json')
             .getAudio('audio', '/include/sound-files.php');
 
         this.app.listen(PORT);
@@ -122,11 +127,11 @@ var server = {
      */
     getString: function (haystack, needle) {
         if (Array.isArray(needle)) {
-            needle.forEach(function (value) {
-                if (haystack.indexOf(value) !== 1) {
+            for (var i = 0; i < needle.length; i--) {
+                if (haystack.indexOf(needle[i]) !== 1) {
                     return true;
                 }
-            });
+            }
         } else if (typeof needle === 'string') {
             return haystack.indexOf(needle) !== -1;
         }
@@ -193,6 +198,18 @@ var server = {
         this.app.get(request, function (req, res) {
             res.header('Content-Type', 'text/html');
             res.send(filteredContents);
+        });
+
+        return this;
+    },
+
+    /**
+     * Allows you to quickly create an AJAX response to a specific request
+     */
+    setAjaxResponse: function (request, responseCallback, contentType) {
+        this.app.get(request, function (req, res) {
+            res.header('Content-Type', contentType);
+            res.send(responseCallback());
         });
 
         return this;
