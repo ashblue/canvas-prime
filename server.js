@@ -17,7 +17,7 @@ var _files = require('files.js').files;
 var _save = require('save.js');
 
 /** @type {string} Folder to build from */
-var _jsRoot = 'js/';
+var _jsRoot = 'public/js/';
 
 /** @type {array} Order to load and compile items */
 var _jsBuildOrder = [
@@ -47,11 +47,11 @@ var server = {
 
         this
             .setFolders()
-            .setReturnJSON('images', ['.jpg', '.png', '.gif'], '/include/image-files.php')
+            .setReturnJSON('public/images', ['.jpg', '.png', '.gif'], '/include/image-files.php')
             .setAjaxResponse('/lv-editor/saves.json', function () {
                 return _files.getFilesRecursive('./lv-editor/saves');
             }, 'application/json')
-            .getAudio('audio', '/include/sound-files.php');
+            .getAudio('public/audio', '/include/sound-files.php');
 
         this.app.listen(PORT);
         console.log('listening on ' + PORT);
@@ -75,7 +75,7 @@ var server = {
     setFolders: function () {
         // Activates production mode so you can demo the compiled code
         this.app.configure('production', function () {
-            console.log('production');
+            console.log('production mode active');
 
             SELF.app.get('/js/all.js', function (req, res) {
                 var compiledJS = SELF.compiler.createJS();
@@ -92,12 +92,15 @@ var server = {
 
         // Settings will be overriden by production if activated
         this.app.configure(function () {
-            SELF.app.use('/style', SELF.express.static(__dirname + '/style'));
-            SELF.app.use('/js', SELF.express.static(__dirname + '/js'));
-            SELF.app.use('/images', SELF.express.static(__dirname + '/images'));
-            SELF.app.use('/audio', SELF.express.static(__dirname + '/audio'));
-            SELF.setCombinedJS('js/engine', '/js/engine/all.js');
-            SELF.setRoot('index.html');
+            //SELF.app.use(SELF.express.directory('public'));
+            //SELF.app.use(SELF.express.static('public'));
+            SELF.app.use(SELF.express.static(__dirname + '/public'));
+            //SELF.app.use('public', SELF.express.static(__dirname + '/'));
+            //SELF.app.use('/js', SELF.express.static(__dirname + '/js'));
+            //SELF.app.use('/images', SELF.express.static(__dirname + '/images'));
+            //SELF.app.use('/audio', SELF.express.static(__dirname + '/audio'));
+            SELF.setCombinedJS('public/js/engine', '/js/engine/all.js');
+            SELF.setRoot('public/index.html');
         });
 
         SELF.app.use('/lv-editor', SELF.express.static(__dirname + '/lv-editor'));
