@@ -1,9 +1,16 @@
-Current project listed here is the stable version. A much more advanced and robust version is available in the 
-development branch. Currently not stable. Please note the below docs are out of date, new ones coming when the development
-branch version is stable.
+Notice
+=============
+
+Sadly this project is no longer in production. My interest has gone elsewhere for now. If you would like to see the
+node.js version that was in production please visit the development branch at 
+https://github.com/ashblue/canvas-prime/tree/development
 
 Setup Guide
 =============
+
+Current project listed here is the stable version. A much more advanced and robust version is available in the 
+development branch. Currently not stable. Please note the below docs are out of date, new ones coming when the development
+branch version is stable.
 
 While Canvas Prime is ready to be used, it's not ready for production. Be warned that features will be added and removed before the final release.
 
